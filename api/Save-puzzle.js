@@ -20,7 +20,6 @@ export default async function handler(req, res) {
       createdAt: Date.now()
     };
 
-    // Simpen puzzle, expired 30 hari
     await kv.set(`puzzle:${code}`, JSON.stringify(puzzle), { ex: 60 * 60 * 24 * 30 });
 
     return res.status(200).json({ ok: true, code });
