@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Look My Characteristic</title>
-<script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#0a0a0f;--card:#14141c;--line:#23232e;--txt:#fff;--muted:#8a8a99;--acc:#7c3aed;--acc2:#06b6d4;--gold:#f59e0b;--red:#ef4444}
@@ -27,13 +26,6 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(circle
 .btn2{background:var(--card);color:var(--txt);border:1px solid var(--line);box-shadow:none;margin-top:10px}
 .btn2:hover{border-color:var(--acc)}
 .btng{background:transparent;border:none;color:var(--muted);font-size:14px;padding:12px;cursor:pointer;font-family:inherit;margin-top:8px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:14px}
-.card h3{font-size:15px;font-weight:700;margin-bottom:10px}
-.steps{display:flex;flex-direction:column;gap:10px}
-.step{display:flex;gap:12px;padding:12px 14px;background:#1c1c26;border:1px solid var(--line);border-radius:12px}
-.step .n{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
-.step .t{font-size:13.5px;color:#c0c0cc;line-height:1.5}
-.step .t b{color:#fff}
 .bar{height:5px;background:var(--line);border-radius:100px;overflow:hidden;margin-bottom:22px}
 .bar>div{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:100px;transition:width .4s;width:0}
 .cnt{font-size:12px;color:var(--muted);margin-bottom:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700}
@@ -72,8 +64,6 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(circle
 .rank-item .sub{font-size:12px;color:var(--muted)}
 .rank-item .sc{font-size:18px;font-weight:900;color:var(--acc2)}
 .rank-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;line-height:1.6}
-
-/* Picker */
 .picker{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto;padding-right:4px}
 .pick-item{display:flex;gap:12px;padding:12px 14px;background:var(--card);border:2px solid var(--line);border-radius:12px;cursor:pointer;transition:.2s;align-items:flex-start}
 .pick-item:hover{border-color:var(--acc)}
@@ -82,15 +72,36 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(circle
 .pick-item.on .chk{background:var(--acc);border-color:var(--acc)}
 .pick-item .txt{font-size:13.5px;line-height:1.4;color:#c0c0cc}
 .pick-item.on .txt{color:#fff;font-weight:600}
-
-/* Custom */
 .cq{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
 .cq-label{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase}
 .cq-input{width:100%;background:#0a0a0f;border:1px solid var(--line);border-radius:10px;padding:11px 13px;color:var(--txt);font-size:14px;font-family:inherit;outline:none;margin-bottom:8px}
 .cq-input:focus{border-color:var(--acc)}
 .cq-input::placeholder{color:#4a4a5a}
 .cq-del{background:transparent;border:none;color:var(--red);font-size:12px;cursor:pointer;font-family:inherit;padding:6px 0;font-weight:600}
-
+.menu-btn{position:absolute;top:0;right:0;width:42px;height:42px;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--txt);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:.2s}
+.menu-btn:hover{border-color:var(--acc);color:var(--acc)}
+.drawer-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:.3s;z-index:98}
+.drawer-bg.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;width:280px;max-width:85vw;height:100vh;background:var(--card);border-left:1px solid var(--line);padding:20px;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:99;display:flex;flex-direction:column;gap:8px}
+.drawer.on{transform:translateX(0)}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;margin-bottom:8px;border-bottom:1px solid var(--line)}
+.drawer-title{font-size:18px;font-weight:800}
+.drawer-close{background:transparent;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px;font-family:inherit}
+.drawer-close:hover{color:var(--txt)}
+.drawer-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:transparent;border:1px solid transparent;border-radius:12px;color:var(--txt);font-size:14.5px;font-weight:600;font-family:inherit;cursor:pointer;text-align:left;transition:.2s}
+.drawer-item:hover{background:rgba(124,58,237,.15);border-color:var(--acc)}
+.di-icon{font-size:18px}
+.hist-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:10px}
+.hist-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:10px}
+.hist-name{font-size:16px;font-weight:800;margin-bottom:4px;letter-spacing:-.3px}
+.hist-meta{font-size:11.5px;color:var(--muted)}
+.hist-code{font-size:10.5px;background:#0a0a0f;border:1px solid var(--line);padding:3px 8px;border-radius:6px;font-family:ui-monospace,monospace;color:var(--muted);flex-shrink:0}
+.hist-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hist-btn{padding:10px;background:#0a0a0f;border:1px solid var(--line);border-radius:10px;color:var(--txt);font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.hist-btn:hover{border-color:var(--acc);color:var(--acc)}
+.hist-btn.primary{background:rgba(124,58,237,.2);border-color:var(--acc)}
+.hist-btn.primary:hover{background:var(--acc);color:#fff}
+.hist-empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;line-height:1.6}
 footer{margin-top:auto;padding-top:28px;text-align:center;font-size:11.5px;color:#3a3a4a}
 footer span{color:var(--acc)}
 @media(max-width:480px){.hero h1{font-size:31px}.qt{font-size:18.5px}.verd .sb{font-size:44px}}
@@ -99,9 +110,27 @@ footer span{color:var(--acc)}
 <body>
 
 <div class="c">
+  <button class="menu-btn" onclick="openMenu()">☰</button>
+
+  <div class="drawer-bg" id="drawerBg" onclick="closeMenu()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-head">
+      <div class="drawer-title">Menu</div>
+      <button class="drawer-close" onclick="closeMenu()">✕</button>
+    </div>
+    <button class="drawer-item" onclick="viewHistory()">
+      <span class="di-icon">📜</span><span>Riwayat Kuis</span>
+    </button>
+    <button class="drawer-item" onclick="closeMenu();go('s-home')">
+      <span class="di-icon">🏠</span><span>Home</span>
+    </button>
+    <button class="drawer-item" onclick="closeMenu();go('s-mode')">
+      <span class="di-icon">✨</span><span>Bikin Kuis Baru</span>
+    </button>
+  </div>
+
   <div class="logo"><div class="m">🧩</div><div>lookmy<span class="lite">characteristic</span></div></div>
 
-  <!-- HOME -->
   <div class="s on" id="s-home">
     <div class="hero">
       <h1>Seberapa kenal <span class="g">kamu sama aku?</span></h1>
@@ -112,7 +141,6 @@ footer span{color:var(--acc)}
     <footer>LOOKMYCHARACTERISTIC // <span>NOVEL PROTOTYPE</span></footer>
   </div>
 
-  <!-- MODE -->
   <div class="s" id="s-mode">
     <div class="hero" style="text-align:left;margin-bottom:20px">
       <h1 style="font-size:26px">Mau gimana?</h1>
@@ -123,7 +151,6 @@ footer span{color:var(--acc)}
     <button class="btng" onclick="go('s-home')">← Kembali</button>
   </div>
 
-  <!-- PICKER -->
   <div class="s" id="s-picker">
     <div class="hero" style="text-align:left;margin-bottom:16px">
       <h1 style="font-size:24px">Pilih pertanyaan</h1>
@@ -138,7 +165,6 @@ footer span{color:var(--acc)}
     <button class="btng" onclick="go('s-mode')">← Kembali</button>
   </div>
 
-  <!-- CUSTOM -->
   <div class="s" id="s-custom">
     <div class="hero" style="text-align:left;margin-bottom:16px">
       <h1 style="font-size:24px">Bikin pertanyaan sendiri</h1>
@@ -154,7 +180,6 @@ footer span{color:var(--acc)}
     <button class="btng" onclick="go('s-mode')">← Kembali</button>
   </div>
 
-  <!-- BUILDER -->
   <div class="s" id="s-build">
     <div class="bar"><div id="bar"></div></div>
     <div class="cnt" id="cnt">SOAL 1 / 8</div>
@@ -164,7 +189,6 @@ footer span{color:var(--acc)}
     <button class="btng" onclick="go('s-home')">← Kembali</button>
   </div>
 
-  <!-- NAME -->
   <div class="s" id="s-name">
     <div class="verd">
       <span class="eb">✨</span>
@@ -172,11 +196,10 @@ footer span{color:var(--acc)}
       <p>Tinggal kasih nama biar teman tau ini puzzle siapa.</p>
     </div>
     <input type="text" class="inp" id="creatorName" placeholder="Nama kamu (max 15)..." maxlength="15">
-    <button class="btn" onclick="genLink()">Bikin Link →</button>
+    <button class="btn" id="genBtn" onclick="genLink()">Bikin Link →</button>
     <button class="btng" onclick="go('s-home')">← Kembali</button>
   </div>
 
-  <!-- SHARE -->
   <div class="s" id="s-share">
     <div class="verd">
       <span class="eb">🔗</span>
@@ -196,7 +219,6 @@ footer span{color:var(--acc)}
     <button class="btng" onclick="go('s-home')">← Home</button>
   </div>
 
-  <!-- PLAYER NAME -->
   <div class="s" id="s-pname">
     <div class="verd">
       <span class="eb">👋</span>
@@ -204,10 +226,9 @@ footer span{color:var(--acc)}
       <p>Sebelum mulai, siapa nama kamu?</p>
     </div>
     <input type="text" class="inp" id="playerName" placeholder="Nama kamu (max 15)..." maxlength="15">
-    <button class="btn" onclick="startPlay()">Mulai Jawab →</button>
+    <button class="btn" id="playBtn" onclick="startPlay()">Mulai Jawab →</button>
   </div>
 
-  <!-- PLAYER QUIZ -->
   <div class="s" id="s-play">
     <div class="bar"><div id="pbar"></div></div>
     <div class="cnt" id="pcnt">SOAL 1 / 8</div>
@@ -216,7 +237,6 @@ footer span{color:var(--acc)}
     <div class="opts" id="popts"></div>
   </div>
 
-  <!-- RESULT -->
   <div class="s" id="s-result">
     <div class="verd" id="resultVerd"></div>
     <button class="btn" onclick="viewRanking()">🏆 Cek Ranking</button>
@@ -224,13 +244,21 @@ footer span{color:var(--acc)}
     <footer>LOOKMYCHARACTERISTIC // <span>NOVEL PROTOTYPE</span></footer>
   </div>
 
-  <!-- RANK -->
   <div class="s" id="s-rank">
     <div class="hero">
       <h1 style="font-size:26px">🏆 Ranking <span class="g" id="rankOwner">Kamu</span></h1>
       <p id="rankSub">Siapa yang paling kenal kamu?</p>
     </div>
     <div class="rank" id="rankList"></div>
+    <button class="btng" onclick="go('s-home')">← Home</button>
+  </div>
+
+  <div class="s" id="s-history">
+    <div class="hero" style="text-align:left;margin-bottom:20px">
+      <h1 style="font-size:26px">📜 Riwayat Kuis</h1>
+      <p style="margin:0">Semua kuis yang pernah kamu bikin.</p>
+    </div>
+    <div id="historyList"></div>
     <button class="btng" onclick="go('s-home')">← Home</button>
   </div>
 </div>
@@ -251,11 +279,8 @@ const BANK = [
 const MIN_Q = 5;
 const MAX_Q = 8;
 
-/* ═══ STATE ═══ */
 let b={i:0,a:[]}, puzzle=null, p={i:0,a:[],name:""}, playerName="";
-let picked=[];       // index pertanyaan yang dipilih dari bank
-let customQs=[];     // pertanyaan custom
-let activeQs=[];     // pertanyaan yang dipakai (bank atau custom)
+let picked=[], customQs=[], activeQs=[];
 
 /* ═══ NAV ═══ */
 function go(id){
@@ -264,17 +289,19 @@ function go(id){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
+/* ═══ MENU ═══ */
+function openMenu(){
+  document.getElementById("drawer").classList.add("on");
+  document.getElementById("drawerBg").classList.add("on");
+}
+function closeMenu(){
+  document.getElementById("drawer").classList.remove("on");
+  document.getElementById("drawerBg").classList.remove("on");
+}
+
 /* ═══ MODE ═══ */
-function startBankMode(){
-  picked=[];
-  renderPicker();
-  go("s-picker");
-}
-function startCustomMode(){
-  customQs=[emptyQ()];
-  renderCustom();
-  go("s-custom");
-}
+function startBankMode(){ picked=[]; renderPicker(); go("s-picker"); }
+function startCustomMode(){ customQs=[emptyQ()]; renderCustom(); go("s-custom"); }
 
 /* ═══ PICKER ═══ */
 function renderPicker(){
@@ -284,10 +311,7 @@ function renderPicker(){
     const on=picked.includes(i);
     const el=document.createElement("div");
     el.className="pick-item"+(on?" on":"");
-    el.innerHTML=`
-      <div class="chk">${on?"✓":""}</div>
-      <div class="txt">${esc(q.q)}</div>
-    `;
+    el.innerHTML=`<div class="chk">${on?"✓":""}</div><div class="txt">${esc(q.q)}</div>`;
     el.onclick=()=>togglePick(i);
     list.appendChild(el);
   });
@@ -316,7 +340,6 @@ function confirmPicker(){
 
 /* ═══ CUSTOM ═══ */
 function emptyQ(){ return {q:"",o:["","","",""]}; }
-
 function renderCustom(){
   const wrap=document.getElementById("customWrap");
   wrap.innerHTML="";
@@ -325,20 +348,15 @@ function renderCustom(){
     el.className="cq";
     el.innerHTML=`
       <div class="cq-label">Pertanyaan ${i+1}</div>
-      <input type="text" class="cq-input" placeholder="Tulis pertanyaan..." 
-             value="${esc(cq.q)}" oninput="updCQ(${i},'q',this.value)" maxlength="80">
+      <input type="text" class="cq-input" placeholder="Tulis pertanyaan..." value="${esc(cq.q)}" oninput="updCQ(${i},'q',this.value)" maxlength="80">
       <div class="cq-label" style="margin-top:8px">Pilihan Jawaban (min 2, max 4)</div>
-      ${cq.o.map((o,j)=>`
-        <input type="text" class="cq-input" placeholder="Pilihan ${j+1}" 
-               value="${esc(o)}" oninput="updCO(${i},${j},this.value)" maxlength="40">
-      `).join("")}
+      ${cq.o.map((o,j)=>`<input type="text" class="cq-input" placeholder="Pilihan ${j+1}" value="${esc(o)}" oninput="updCO(${i},${j},this.value)" maxlength="40">`).join("")}
       ${customQs.length>1?`<button class="cq-del" onclick="delCQ(${i})">🗑 Hapus pertanyaan ini</button>`:""}
     `;
     wrap.appendChild(el);
   });
   updateCQUI();
 }
-
 function updCQ(i,f,v){ customQs[i][f]=v; updateCQUI(); }
 function updCO(i,j,v){ customQs[i].o[j]=v; updateCQUI(); }
 function addCQ(){
@@ -347,20 +365,15 @@ function addCQ(){
   renderCustom();
 }
 function delCQ(i){ customQs.splice(i,1); renderCustom(); }
-
 function updateCQUI(){
   const valid=customQs.filter(cq=>cq.q.trim() && cq.o.filter(o=>o.trim()).length>=2);
   document.getElementById("cqCount").textContent=customQs.length;
   document.getElementById("cqBtn").disabled=valid.length<MIN_Q;
 }
-
 function confirmCustom(){
   const cleaned=customQs
     .filter(cq=>cq.q.trim() && cq.o.filter(o=>o.trim()).length>=2)
-    .map(cq=>({
-      q:cq.q.trim(),
-      o:cq.o.filter(o=>o.trim()).map(o=>o.trim()).slice(0,4)
-    }));
+    .map(cq=>({q:cq.q.trim(),o:cq.o.filter(o=>o.trim()).map(o=>o.trim()).slice(0,4)}));
   if(cleaned.length<MIN_Q) return alert(`Minimal ${MIN_Q} pertanyaan valid.`);
   activeQs=cleaned;
   b={i:0,a:[]};
@@ -393,15 +406,38 @@ function pickB(idx,btn){
   },300);
 }
 
-/* ═══ GEN LINK ═══ */
-function genLink(){
-  const name=document.getElementById("creatorName").value.trim()||"Someone";
-  const code=rand(8);
-  puzzle={name,questions:activeQs,answers:b.a,code};
-  const packed=LZString.compressToEncodedURIComponent(JSON.stringify(puzzle));
-  const url=`${location.origin}${location.pathname}#p/${code}?d=${packed}`;
-  document.getElementById("shareLink").value=url;
-  go("s-share");
+/* ═══ GEN LINK (kirim ke server, link pendek) ═══ */
+async function genLink(){
+  const name = document.getElementById("creatorName").value.trim() || "Someone";
+  const code = rand(8);
+  const payload = { name, questions: activeQs, answers: b.a, code };
+
+  const btn = document.getElementById("genBtn");
+  btn.disabled = true;
+  btn.textContent = "Menyimpan...";
+
+  try {
+    const res = await fetch("/api/save-puzzle", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error("Gagal simpen");
+
+    const url = `${location.origin}${location.pathname}#p/${code}`;
+    document.getElementById("shareLink").value = url;
+
+    puzzle = { ...payload, code };
+    saveToHistory(puzzle);
+    go("s-share");
+
+  } catch (e) {
+    alert("Gagal bikin link. Coba lagi.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Bikin Link →";
+  }
 }
 function rand(n){let s="",c="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";for(let i=0;i<n;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
 
@@ -424,32 +460,45 @@ function shareTo(p){
   window.open(u[p],"_blank");
 }
 
-/* ═══ LOAD FROM URL ═══ */
-function loadFromUrl(){
-  const m=location.hash.match(/#p\/([A-Za-z0-9]+)\?d=(.+)/);
-  if(!m){
-    const link=prompt("Tempel link puzzle:");
-    if(!link)return;
-    const mm=link.match(/#p\/([A-Za-z0-9]+)\?d=(.+)/);
-    if(!mm)return alert("Link gak valid.");
-    parsePlay(mm[1],mm[2]);
-    return;
+/* ═══ LOAD FROM URL (link pendek) ═══ */
+async function loadFromUrl(){
+  let code = null;
+  const m = location.hash.match(/#p\/([A-Za-z0-9]+)/);
+  if (m) code = m[1];
+
+  if (!code) {
+    const link = prompt("Tempel link puzzle:");
+    if (!link) return;
+    const mm = link.match(/#p\/([A-Za-z0-9]+)/);
+    if (!mm) return alert("Link gak valid.");
+    code = mm[1];
   }
-  parsePlay(m[1],m[2]);
+
+  document.getElementById("pnameTitle").textContent = "Memuat puzzle...";
+  document.getElementById("playBtn").disabled = true;
+  document.getElementById("playerName").disabled = true;
+  go("s-pname");
+
+  try {
+    const res = await fetch(`/api/get-puzzle?code=${code}`);
+    if (!res.ok) throw new Error("Puzzle gak ketemu");
+
+    const data = await res.json();
+    puzzle = { ...data, code };
+
+    document.getElementById("pnameTitle").textContent = `Halo! Ini puzzle ${puzzle.name}`;
+    document.getElementById("playBtn").disabled = false;
+    document.getElementById("playerName").disabled = false;
+
+  } catch (e) {
+    alert("Puzzle gak ketemu atau udah expired. Minta link baru.");
+    go("s-home");
+  }
 }
-function parsePlay(code,packed){
-  try{
-    const json=LZString.decompressFromEncodedURIComponent(packed);
-    if(!json)throw 0;
-    puzzle=JSON.parse(json);
-    puzzle.code=code;
-    document.getElementById("pnameTitle").textContent=`Halo! Ini puzzle ${puzzle.name}`;
-    go("s-pname");
-  }catch(e){alert("Puzzle rusak. Minta link baru.");}
-}
-window.addEventListener("load",()=>{
-  if(location.hash.startsWith("#p/") && location.hash.includes("?d=")){
-    setTimeout(loadFromUrl,300);
+
+window.addEventListener("load", () => {
+  if (location.hash.match(/#p\/[A-Za-z0-9]+/)) {
+    setTimeout(loadFromUrl, 300);
   }
 });
 
@@ -554,6 +603,88 @@ async function viewRanking(){
     });
   } catch(e){
     list.innerHTML=`<div class="rank-empty">Gagal memuat ranking 😅<br/>Coba lagi nanti.</div>`;
+  }
+}
+
+/* ═══ RIWAYAT ═══ */
+function saveToHistory(pz){
+  const hist = JSON.parse(localStorage.getItem("history") || "[]");
+  const idx = hist.findIndex(h => h.code === pz.code);
+  const entry = {
+    code: pz.code,
+    name: pz.name,
+    questions: pz.questions,
+    answers: pz.answers,
+    createdAt: Date.now()
+  };
+  if(idx >= 0) hist[idx] = entry;
+  else hist.unshift(entry);
+  localStorage.setItem("history", JSON.stringify(hist.slice(0,20)));
+}
+
+function viewHistory(){
+  closeMenu();
+  const hist = JSON.parse(localStorage.getItem("history") || "[]");
+  const list = document.getElementById("historyList");
+
+  if(!hist.length){
+    list.innerHTML = `<div class="hist-empty">Belum ada riwayat kuis.<br/>Bikin kuis pertamamu dulu! ✨</div>`;
+    go("s-history");
+    return;
+  }
+
+  list.innerHTML = "";
+  hist.forEach(h => {
+    const card = document.createElement("div");
+    card.className = "hist-card";
+    const date = new Date(h.createdAt).toLocaleDateString("id-ID", {
+      day:"numeric", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit"
+    });
+
+    card.innerHTML = `
+      <div class="hist-top">
+        <div>
+          <div class="hist-name">${esc(h.name)}</div>
+          <div class="hist-meta">${h.questions.length} pertanyaan • ${date}</div>
+        </div>
+        <div class="hist-code">${h.code}</div>
+      </div>
+      <div class="hist-actions">
+        <button class="hist-btn primary" onclick="openHistRank('${h.code}')">🏆 Lihat Ranking</button>
+        <button class="hist-btn" onclick="reshareHist('${h.code}')">🔗 Share Ulang</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+
+  go("s-history");
+}
+
+function openHistRank(code){
+  const hist = JSON.parse(localStorage.getItem("history") || "[]");
+  const h = hist.find(x => x.code === code);
+  if(!h) return alert("Kuis gak ketemu.");
+  puzzle = h;
+  viewRanking();
+}
+
+function reshareHist(code){
+  const hist = JSON.parse(localStorage.getItem("history") || "[]");
+  const h = hist.find(x => x.code === code);
+  if(!h) return alert("Kuis gak ketemu.");
+
+  const url = `${location.origin}${location.pathname}#p/${h.code}`;
+
+  if(navigator.share){
+    navigator.share({
+      title: "Coba tebak, seberapa kenal kamu sama aku?",
+      text: "🧩 " + h.name,
+      url: url
+    });
+  } else {
+    navigator.clipboard.writeText(url).then(() => {
+      alert("Link udah di-copy! Tinggal paste ke teman lo. 🔗");
+    });
   }
 }
 
