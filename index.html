@@ -873,4 +873,329 @@ function renderCustomBuilder() {
     card.className = "card";
     card.style.marginBottom = "12px";
     card.innerHTML = `
-      <div class="input-label">P
+      <div class="input-label">PERTANYAAN ${i + 1}</div>
+      <input type="text" class="custom-input" placeholder="Tulis pertanyaan..." 
+             value="${escapeHtml(cq.q)}" oninput="updateCustomQ(${i}, 'q', this.value)" />
+      <div class="input-label" style="margin-top:8px;">PILIHAN JAWABAN</div>
+      ${cq.opts.map((o, j) => `
+        <input type="text" class="custom-input" placeholder="Pilihan ${j + 1}" 
+               value="${escapeHtml(o)}" oninput="updateCustomOpt(${i}, ${j}, this.value)" />
+      `).join("")}
+      ${customQuestions.length > 1 ? `
+        <button class="btn btn-ghost" style="font-size:12px;" onclick="removeCustomQ(${i})">🗑 Hapus</button>
+      ` : ""}
+    `;
+    wrap.appendChild(card);
+  });
+  updateCustomUI();
+}
+
+function updateCustomQ(i, field, value) {
+  customQuestions[i][field] = value;
+}
+
+function updateCustomOpt(i, j, value) {
+  customQuestions[i].opts[j] = value;
+}
+
+function addCustomQuestion() {
+  if (customQuestions.length >= MAX_QUESTIONS) {
+    alert(`Maksimal ${MAX_QUESTIONS} pertanyaan.`);
+    return;
+  }
+  customQuestions.push(emptyCustomQ());
+  renderCustomBuilder();
+}
+
+function removeCustomQ(i) {
+  customQuestions.splice(i, 1);
+  renderCustomBuilder();
+}
+
+function updateCustomUI() {
+  // Hitung yang valid: pertanyaan ada isi + minimal 2 pilihan ada isi
+  const valid = customQuestions.filter(cq =>
+    cq.q.trim() &&
+    cq.opts.filter(o => o.trim()).length >= 2
+  );
+  document.getElementById("customCount").textContent = customQuestions.length;
+  document.getElementById("customBtn").disabled = valid.length < MIN_QUESTIONS;
+}
+
+function confirmCustom() {
+  // Filter + normalize
+  const cleaned = customQuestions
+    .filter(cq => cq.q.trim() && cq.opts.filter(o => o.trim()).length >= 2)
+    .map(cq => ({
+      q: cq.q.trim(),
+      opts: cq.opts.filter(o => o.trim()).map(o => o.trim())
+    }));
+
+  if (cleaned.length < MIN_QUESTIONS) {
+    alert(`Minimal ${MIN_QUESTIONS} pertanyaan valid.`);
+    return;
+  }
+
+  activeQuestions = cleaned;
+  builderState = { current: 0, answers: [] };
+  showScreen("screen-builder");
+  renderBuilderQuestion();
+}
+
+// Re-render on input
+document.addEventListener("input", (e) => {
+  if (e.target.closest("#screen-custom")) {
+    updateCustomUI();
+  }
+});
+
+/* ═══════════════════════════════════════════
+   BUILDER — user jawab sendiri
+   ═══════════════════════════════════════════ */
+function renderBuilderQuestion() {
+  const i = builderState.current;
+  const q = activeQuestions[i];
+  document.getElementById("progressFill").style.width = (i / activeQuestions.length * 100) + "%";
+  document.getElementById("qCounter").textContent = `QUESTION ${i + 1} / ${activeQuestions.length}`;
+  document.getElementById("qText").textContent = q.q;
+
+  const letters = ["A", "B", "C", "D", "E", "F"];
+  const optsEl = document.getElementById("options");
+  optsEl.innerHTML = "";
+  q.opts.forEach((opt, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "option";
+    btn.innerHTML = `<span class="letter">${letters[idx] || "?"}</span><span>${escapeHtml(opt)}</span>`;
+    btn.onclick = () => selectBuilderAnswer(idx);
+    optsEl.appendChild(btn);
+  });
+}
+
+function selectBuilderAnswer(idx) {
+  document.querySelectorAll("#options .option").forEach((el, k) => {
+    el.classList.toggle("selected", k === idx);
+  });
+  builderState.answers[builderState.current] = idx;
+
+  setTimeout(() => {
+    if (builderState.current + 1 < activeQuestions.length) {
+      builderState.current++;
+      renderBuilderQuestion();
+    } else {
+      document.getElementById("progressFill").style.width = "100%";
+      setTimeout(() => showScreen("screen-name"), 350);
+    }
+  }, 300);
+}
+
+/* ═══════════════════════════════════════════
+   GENERATE LINK
+   ═══════════════════════════════════════════ */
+function generateLink() {
+  const name = document.getElementById("creatorName").value.trim() || "Someone";
+  const code = randomCode(12);
+  const puzzle = {
+    name,
+    questions: activeQuestions,
+    answers: builderState.answers
+  };
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(puzzle))));
+  const url = `${location.origin}${location.pathname}#puzzle/${code}?d=${encoded}`;
+  document.getElementById("shareLink").value = url;
+  currentPuzzle = { ...puzzle, code };
+  showScreen("screen-share");
+}
+
+function randomCode(len) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let s = "";
+  for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return s;
+}
+
+/* ═══════════════════════════════════════════
+   SHARE + COPY
+   ═══════════════════════════════════════════ */
+function copyLink() {
+  const input = document.getElementById("shareLink");
+  input.select();
+  navigator.clipboard.writeText(input.value).then(() => {
+    const btn = input.nextElementSibling;
+    const orig = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+function shareTo(platform) {
+  const link = document.getElementById("shareLink").value;
+  const text = "Coba tebak, seberapa kenal kamu sama aku? 🧩";
+  const urls = {
+    whatsapp: `https://wa.me/?text=${encodeURIComponent(text + " " + link)}`,
+    telegram: `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`,
+    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(link)}`
+  };
+  window.open(urls[platform], "_blank");
+}
+
+/* ═══════════════════════════════════════════
+   LOAD PUZZLE FROM URL
+   ═══════════════════════════════════════════ */
+function loadPuzzleFromUrl() {
+  const hash = location.hash;
+  const match = hash.match(/#puzzle\/([^?]+)\?d=(.+)/);
+  if (!match) {
+    const link = prompt("Tempel link puzzle di sini:");
+    if (!link) return;
+    try {
+      const url = new URL(link);
+      const m = url.hash.match(/#puzzle\/([^?]+)\?d=(.+)/);
+      if (!m) throw new Error("Link gak valid");
+      const puzzle = JSON.parse(decodeURIComponent(escape(atob(m[2]))));
+      startPlayer(puzzle);
+    } catch (e) {
+      alert("Link puzzle gak valid. Coba lagi.");
+    }
+    return;
+  }
+  try {
+    const puzzle = JSON.parse(decodeURIComponent(escape(atob(match[2]))));
+    startPlayer(puzzle);
+  } catch (e) {
+    alert("Puzzle rusak. Minta link baru.");
+  }
+}
+
+window.addEventListener("load", () => {
+  if (location.hash.startsWith("#puzzle/")) {
+    setTimeout(loadPuzzleFromUrl, 100);
+  }
+});
+
+/* ═══════════════════════════════════════════
+   PLAYER
+   ═══════════════════════════════════════════ */
+function startPlayer(puzzle) {
+  currentPuzzle = puzzle;
+  playerState = { current: 0, answers: [] };
+  document.getElementById("playerHint").textContent = `Tebak jawaban ${puzzle.name}`;
+  showScreen("screen-player");
+  renderPlayerQuestion();
+}
+
+function previewAsFriend() {
+  if (!currentPuzzle) return;
+  startPlayer(currentPuzzle);
+}
+
+function renderPlayerQuestion() {
+  const i = playerState.current;
+  const q = currentPuzzle.questions[i];
+  document.getElementById("playerProgressFill").style.width = (i / currentPuzzle.questions.length * 100) + "%";
+  document.getElementById("playerCounter").textContent = `QUESTION ${i + 1} / ${currentPuzzle.questions.length}`;
+  document.getElementById("playerQText").textContent = q.q;
+
+  const letters = ["A", "B", "C", "D", "E", "F"];
+  const optsEl = document.getElementById("playerOptions");
+  optsEl.innerHTML = "";
+  q.opts.forEach((opt, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "option";
+    btn.innerHTML = `<span class="letter">${letters[idx] || "?"}</span><span>${escapeHtml(opt)}</span>`;
+    btn.onclick = () => selectPlayerAnswer(idx);
+    optsEl.appendChild(btn);
+  });
+}
+
+function selectPlayerAnswer(idx) {
+  document.querySelectorAll("#playerOptions .option").forEach((el, k) => {
+    el.classList.toggle("selected", k === idx);
+  });
+  playerState.answers[playerState.current] = idx;
+
+  setTimeout(() => {
+    if (playerState.current + 1 < currentPuzzle.questions.length) {
+      playerState.current++;
+      renderPlayerQuestion();
+    } else {
+      document.getElementById("playerProgressFill").style.width = "100%";
+      setTimeout(showResult, 350);
+    }
+  }, 300);
+}
+
+/* ═══════════════════════════════════════════
+   RESULT
+   ═══════════════════════════════════════════ */
+function showResult() {
+  const correct = currentPuzzle.answers;
+  const player = playerState.answers;
+  const total = currentPuzzle.questions.length;
+  let score = 0;
+  player.forEach((ans, i) => { if (ans === correct[i]) score++; });
+  const pct = Math.round((score / total) * 100);
+
+  let emoji, title, desc;
+  if (pct === 100) { emoji = "👑"; title = "Perfect!"; desc = `${currentPuzzle.name} bakal kaget. Kamu bener-bener kenal dia.`; }
+  else if (pct >= 80) { emoji = "🔥"; title = "Kenal banget!"; desc = "Kamu salah satu orang yang paling ngerti dia."; }
+  else if (pct >= 60) { emoji = "😎"; title = "Lumayan kenal"; desc = "Kamu cukup ngerti dia, tapi masih ada yang belum."; }
+  else if (pct >= 40) { emoji = "🤔"; title = "Setengah kenal"; desc = "Kamu kenal dia, tapi belum dalam."; }
+  else if (pct >= 20) { emoji = "😬"; title = "Kurang kenal"; desc = "Kamu perlu ngobrol lebih banyak sama dia."; }
+  else { emoji = "💀"; title = "Nggak kenal"; desc = "Kamu yakin ini temen kamu?"; }
+
+  document.getElementById("resultVerdict").innerHTML = `
+    <span class="emoji-big">${emoji}</span>
+    <div class="score-big">${pct}%</div>
+    <h2>${title}</h2>
+    <p>Kamu jawab ${score} dari ${total} benar.<br/>${desc}</p>
+  `;
+
+  const reviewEl = document.getElementById("reviewList");
+  reviewEl.innerHTML = "";
+  currentPuzzle.questions.forEach((q, i) => {
+    const isCorrect = player[i] === correct[i];
+    const item = document.createElement("div");
+    item.className = "review-item " + (isCorrect ? "correct" : "wrong");
+    item.innerHTML = `
+      <div class="mark">${isCorrect ? "✓" : "✕"}</div>
+      <div class="body">
+        <div class="q">${escapeHtml(q.q)}</div>
+        <div class="a">Jawaban benar: <strong>${escapeHtml(q.opts[correct[i]])}</strong></div>
+      </div>
+    `;
+    reviewEl.appendChild(item);
+  });
+
+  showScreen("screen-result");
+}
+
+function tryAgain() {
+  if (!currentPuzzle) return;
+  playerState = { current: 0, answers: [] };
+  showScreen("screen-player");
+  renderPlayerQuestion();
+}
+
+function createOwn() {
+  location.hash = "";
+  currentPuzzle = null;
+  activeQuestions = [];
+  showScreen("screen-home");
+}
+
+/* ═══════════════════════════════════════════
+   UTIL
+   ═══════════════════════════════════════════ */
+function escapeHtml(s) {
+  if (s === undefined || s === null) return "";
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+</script>
+
+</body>
+</html>
