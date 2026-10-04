@@ -7,7 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--bg:#0a0a0f;--card:#14141c;--line:#23232e;--txt:#fff;--muted:#8a8a99;--acc:#7c3aed;--acc2:#06b6d4;--gold:#f59e0b}
+:root{--bg:#0a0a0f;--card:#14141c;--line:#23232e;--txt:#fff;--muted:#8a8a99;--acc:#7c3aed;--acc2:#06b6d4;--gold:#f59e0b;--red:#ef4444}
 body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 20px 60px}
 body::before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 15% 5%,rgba(124,58,237,.15),transparent 45%),radial-gradient(circle at 85% 95%,rgba(6,182,212,.12),transparent 45%);pointer-events:none}
 .c{width:100%;max-width:520px;position:relative;z-index:1;display:flex;flex-direction:column;min-height:calc(100vh - 84px)}
@@ -72,9 +72,27 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(circle
 .rank-item .sub{font-size:12px;color:var(--muted)}
 .rank-item .sc{font-size:18px;font-weight:900;color:var(--acc2)}
 .rank-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;line-height:1.6}
+
+/* Picker */
+.picker{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto;padding-right:4px}
+.pick-item{display:flex;gap:12px;padding:12px 14px;background:var(--card);border:2px solid var(--line);border-radius:12px;cursor:pointer;transition:.2s;align-items:flex-start}
+.pick-item:hover{border-color:var(--acc)}
+.pick-item.on{border-color:var(--acc);background:rgba(124,58,237,.15)}
+.pick-item .chk{width:20px;height:20px;border-radius:6px;border:2px solid var(--line);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;margin-top:2px;color:#fff}
+.pick-item.on .chk{background:var(--acc);border-color:var(--acc)}
+.pick-item .txt{font-size:13.5px;line-height:1.4;color:#c0c0cc}
+.pick-item.on .txt{color:#fff;font-weight:600}
+
+/* Custom */
+.cq{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.cq-label{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase}
+.cq-input{width:100%;background:#0a0a0f;border:1px solid var(--line);border-radius:10px;padding:11px 13px;color:var(--txt);font-size:14px;font-family:inherit;outline:none;margin-bottom:8px}
+.cq-input:focus{border-color:var(--acc)}
+.cq-input::placeholder{color:#4a4a5a}
+.cq-del{background:transparent;border:none;color:var(--red);font-size:12px;cursor:pointer;font-family:inherit;padding:6px 0;font-weight:600}
+
 footer{margin-top:auto;padding-top:28px;text-align:center;font-size:11.5px;color:#3a3a4a}
 footer span{color:var(--acc)}
-.mt3{margin-top:12px}
 @media(max-width:480px){.hero h1{font-size:31px}.qt{font-size:18.5px}.verd .sb{font-size:44px}}
 </style>
 </head>
@@ -83,16 +101,60 @@ footer span{color:var(--acc)}
 <div class="c">
   <div class="logo"><div class="m">🧩</div><div>lookmy<span class="lite">characteristic</span></div></div>
 
+  <!-- HOME -->
   <div class="s on" id="s-home">
     <div class="hero">
       <h1>Seberapa kenal <span class="g">kamu sama aku?</span></h1>
       <p>Bikin teka-teki tentang dirimu. Share ke teman. Lihat siapa yang paling ngerti kamu.</p>
     </div>
-    <button class="btn" onclick="startBuilder()">Bikin Puzzle →</button>
+    <button class="btn" onclick="go('s-mode')">Bikin Puzzle →</button>
     <button class="btn btn2" onclick="loadFromUrl()">Masukin Link Puzzle</button>
     <footer>LOOKMYCHARACTERISTIC // <span>NOVEL PROTOTYPE</span></footer>
   </div>
 
+  <!-- MODE -->
+  <div class="s" id="s-mode">
+    <div class="hero" style="text-align:left;margin-bottom:20px">
+      <h1 style="font-size:26px">Mau gimana?</h1>
+      <p style="margin:0">Pilih dari pertanyaan siap pakai, atau tulis sendiri.</p>
+    </div>
+    <button class="btn" onclick="startBankMode()">📚 Pilih dari Bank <span style="opacity:.7;font-weight:500;font-size:12px">(8 siap pakai)</span></button>
+    <button class="btn btn2" onclick="startCustomMode()">✍️ Tulis Pertanyaan Sendiri</button>
+    <button class="btng" onclick="go('s-home')">← Kembali</button>
+  </div>
+
+  <!-- PICKER -->
+  <div class="s" id="s-picker">
+    <div class="hero" style="text-align:left;margin-bottom:16px">
+      <h1 style="font-size:24px">Pilih pertanyaan</h1>
+      <p style="margin:0">Pilih 5–8 pertanyaan yang paling ngena.</p>
+    </div>
+    <div class="picker" id="pickerList"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 12px;font-size:13px;color:var(--muted)">
+      <span>Dipilih: <b id="pickCount" style="color:var(--acc)">0</b> / 8</span>
+      <span style="font-size:12px">Minimal 5</span>
+    </div>
+    <button class="btn" id="pickBtn" onclick="confirmPicker()" disabled>Lanjut Jawab →</button>
+    <button class="btng" onclick="go('s-mode')">← Kembali</button>
+  </div>
+
+  <!-- CUSTOM -->
+  <div class="s" id="s-custom">
+    <div class="hero" style="text-align:left;margin-bottom:16px">
+      <h1 style="font-size:24px">Bikin pertanyaan sendiri</h1>
+      <p style="margin:0">Tulis pertanyaan + 2–4 pilihan. Minimal 5 pertanyaan.</p>
+    </div>
+    <div id="customWrap"></div>
+    <button class="btn btn2" onclick="addCQ()">+ Tambah Pertanyaan</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 12px;font-size:13px;color:var(--muted)">
+      <span>Total: <b id="cqCount" style="color:var(--acc)">0</b> pertanyaan</span>
+      <span style="font-size:12px">Minimal 5 valid</span>
+    </div>
+    <button class="btn" id="cqBtn" onclick="confirmCustom()" disabled>Lanjut Jawab →</button>
+    <button class="btng" onclick="go('s-mode')">← Kembali</button>
+  </div>
+
+  <!-- BUILDER -->
   <div class="s" id="s-build">
     <div class="bar"><div id="bar"></div></div>
     <div class="cnt" id="cnt">SOAL 1 / 8</div>
@@ -102,6 +164,7 @@ footer span{color:var(--acc)}
     <button class="btng" onclick="go('s-home')">← Kembali</button>
   </div>
 
+  <!-- NAME -->
   <div class="s" id="s-name">
     <div class="verd">
       <span class="eb">✨</span>
@@ -113,6 +176,7 @@ footer span{color:var(--acc)}
     <button class="btng" onclick="go('s-home')">← Kembali</button>
   </div>
 
+  <!-- SHARE -->
   <div class="s" id="s-share">
     <div class="verd">
       <span class="eb">🔗</span>
@@ -132,6 +196,7 @@ footer span{color:var(--acc)}
     <button class="btng" onclick="go('s-home')">← Home</button>
   </div>
 
+  <!-- PLAYER NAME -->
   <div class="s" id="s-pname">
     <div class="verd">
       <span class="eb">👋</span>
@@ -142,6 +207,7 @@ footer span{color:var(--acc)}
     <button class="btn" onclick="startPlay()">Mulai Jawab →</button>
   </div>
 
+  <!-- PLAYER QUIZ -->
   <div class="s" id="s-play">
     <div class="bar"><div id="pbar"></div></div>
     <div class="cnt" id="pcnt">SOAL 1 / 8</div>
@@ -150,6 +216,7 @@ footer span{color:var(--acc)}
     <div class="opts" id="popts"></div>
   </div>
 
+  <!-- RESULT -->
   <div class="s" id="s-result">
     <div class="verd" id="resultVerd"></div>
     <button class="btn" onclick="viewRanking()">🏆 Cek Ranking</button>
@@ -157,9 +224,10 @@ footer span{color:var(--acc)}
     <footer>LOOKMYCHARACTERISTIC // <span>NOVEL PROTOTYPE</span></footer>
   </div>
 
+  <!-- RANK -->
   <div class="s" id="s-rank">
     <div class="hero">
-      <h1 style="font-size:26px;">🏆 Ranking <span class="g" id="rankOwner">Kamu</span></h1>
+      <h1 style="font-size:26px">🏆 Ranking <span class="g" id="rankOwner">Kamu</span></h1>
       <p id="rankSub">Siapa yang paling kenal kamu?</p>
     </div>
     <div class="rank" id="rankList"></div>
@@ -180,8 +248,14 @@ const BANK = [
   {q:"Aku paling respect sama orang yang...",o:["Jujur","Pinter","Humoris","Bisa diem"]}
 ];
 
+const MIN_Q = 5;
+const MAX_Q = 8;
+
 /* ═══ STATE ═══ */
 let b={i:0,a:[]}, puzzle=null, p={i:0,a:[],name:""}, playerName="";
+let picked=[];       // index pertanyaan yang dipilih dari bank
+let customQs=[];     // pertanyaan custom
+let activeQs=[];     // pertanyaan yang dipakai (bank atau custom)
 
 /* ═══ NAV ═══ */
 function go(id){
@@ -190,18 +264,121 @@ function go(id){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
+/* ═══ MODE ═══ */
+function startBankMode(){
+  picked=[];
+  renderPicker();
+  go("s-picker");
+}
+function startCustomMode(){
+  customQs=[emptyQ()];
+  renderCustom();
+  go("s-custom");
+}
+
+/* ═══ PICKER ═══ */
+function renderPicker(){
+  const list=document.getElementById("pickerList");
+  list.innerHTML="";
+  BANK.forEach((q,i)=>{
+    const on=picked.includes(i);
+    const el=document.createElement("div");
+    el.className="pick-item"+(on?" on":"");
+    el.innerHTML=`
+      <div class="chk">${on?"✓":""}</div>
+      <div class="txt">${esc(q.q)}</div>
+    `;
+    el.onclick=()=>togglePick(i);
+    list.appendChild(el);
+  });
+  updatePickUI();
+}
+function togglePick(i){
+  const idx=picked.indexOf(i);
+  if(idx>=0) picked.splice(idx,1);
+  else {
+    if(picked.length>=MAX_Q) return alert(`Maksimal ${MAX_Q} pertanyaan.`);
+    picked.push(i);
+  }
+  renderPicker();
+}
+function updatePickUI(){
+  document.getElementById("pickCount").textContent=picked.length;
+  document.getElementById("pickBtn").disabled=picked.length<MIN_Q;
+}
+function confirmPicker(){
+  if(picked.length<MIN_Q) return;
+  activeQs=picked.sort((a,b)=>a-b).map(i=>BANK[i]);
+  b={i:0,a:[]};
+  go("s-build");
+  renderB();
+}
+
+/* ═══ CUSTOM ═══ */
+function emptyQ(){ return {q:"",o:["","","",""]}; }
+
+function renderCustom(){
+  const wrap=document.getElementById("customWrap");
+  wrap.innerHTML="";
+  customQs.forEach((cq,i)=>{
+    const el=document.createElement("div");
+    el.className="cq";
+    el.innerHTML=`
+      <div class="cq-label">Pertanyaan ${i+1}</div>
+      <input type="text" class="cq-input" placeholder="Tulis pertanyaan..." 
+             value="${esc(cq.q)}" oninput="updCQ(${i},'q',this.value)" maxlength="80">
+      <div class="cq-label" style="margin-top:8px">Pilihan Jawaban (min 2, max 4)</div>
+      ${cq.o.map((o,j)=>`
+        <input type="text" class="cq-input" placeholder="Pilihan ${j+1}" 
+               value="${esc(o)}" oninput="updCO(${i},${j},this.value)" maxlength="40">
+      `).join("")}
+      ${customQs.length>1?`<button class="cq-del" onclick="delCQ(${i})">🗑 Hapus pertanyaan ini</button>`:""}
+    `;
+    wrap.appendChild(el);
+  });
+  updateCQUI();
+}
+
+function updCQ(i,f,v){ customQs[i][f]=v; updateCQUI(); }
+function updCO(i,j,v){ customQs[i].o[j]=v; updateCQUI(); }
+function addCQ(){
+  if(customQs.length>=MAX_Q) return alert(`Maksimal ${MAX_Q} pertanyaan.`);
+  customQs.push(emptyQ());
+  renderCustom();
+}
+function delCQ(i){ customQs.splice(i,1); renderCustom(); }
+
+function updateCQUI(){
+  const valid=customQs.filter(cq=>cq.q.trim() && cq.o.filter(o=>o.trim()).length>=2);
+  document.getElementById("cqCount").textContent=customQs.length;
+  document.getElementById("cqBtn").disabled=valid.length<MIN_Q;
+}
+
+function confirmCustom(){
+  const cleaned=customQs
+    .filter(cq=>cq.q.trim() && cq.o.filter(o=>o.trim()).length>=2)
+    .map(cq=>({
+      q:cq.q.trim(),
+      o:cq.o.filter(o=>o.trim()).map(o=>o.trim()).slice(0,4)
+    }));
+  if(cleaned.length<MIN_Q) return alert(`Minimal ${MIN_Q} pertanyaan valid.`);
+  activeQs=cleaned;
+  b={i:0,a:[]};
+  go("s-build");
+  renderB();
+}
+
 /* ═══ BUILDER ═══ */
-function startBuilder(){ b={i:0,a:[]}; go("s-build"); renderB(); }
 function renderB(){
-  const q=BANK[b.i];
-  document.getElementById("bar").style.width=(b.i/BANK.length*100)+"%";
-  document.getElementById("cnt").textContent=`SOAL ${b.i+1} / ${BANK.length}`;
+  const q=activeQs[b.i];
+  document.getElementById("bar").style.width=(b.i/activeQs.length*100)+"%";
+  document.getElementById("cnt").textContent=`SOAL ${b.i+1} / ${activeQs.length}`;
   document.getElementById("qt").textContent=q.q;
   const el=document.getElementById("opts"); el.innerHTML="";
   q.o.forEach((opt,idx)=>{
     const btn=document.createElement("button");
     btn.className="opt";
-    btn.innerHTML=`<span class="l">${"ABCD"[idx]}</span><span>${opt}</span>`;
+    btn.innerHTML=`<span class="l">${"ABCD"[idx]}</span><span>${esc(opt)}</span>`;
     btn.onclick=()=>pickB(idx,btn);
     el.appendChild(btn);
   });
@@ -211,7 +388,7 @@ function pickB(idx,btn){
   btn.classList.add("sel");
   b.a[b.i]=idx;
   setTimeout(()=>{
-    if(b.i+1<BANK.length){b.i++;renderB();}
+    if(b.i+1<activeQs.length){b.i++;renderB();}
     else{document.getElementById("bar").style.width="100%";setTimeout(()=>go("s-name"),350);}
   },300);
 }
@@ -220,7 +397,7 @@ function pickB(idx,btn){
 function genLink(){
   const name=document.getElementById("creatorName").value.trim()||"Someone";
   const code=rand(8);
-  puzzle={name,questions:BANK,answers:b.a,code};
+  puzzle={name,questions:activeQs,answers:b.a,code};
   const packed=LZString.compressToEncodedURIComponent(JSON.stringify(puzzle));
   const url=`${location.origin}${location.pathname}#p/${code}?d=${packed}`;
   document.getElementById("shareLink").value=url;
@@ -249,8 +426,7 @@ function shareTo(p){
 
 /* ═══ LOAD FROM URL ═══ */
 function loadFromUrl(){
-  const h=location.hash;
-  const m=h.match(/#p\/([A-Za-z0-9]+)\?d=(.+)/);
+  const m=location.hash.match(/#p\/([A-Za-z0-9]+)\?d=(.+)/);
   if(!m){
     const link=prompt("Tempel link puzzle:");
     if(!link)return;
@@ -296,7 +472,7 @@ function renderP(){
   q.o.forEach((opt,idx)=>{
     const btn=document.createElement("button");
     btn.className="opt";
-    btn.innerHTML=`<span class="l">${"ABCD"[idx]}</span><span>${opt}</span>`;
+    btn.innerHTML=`<span class="l">${"ABCD"[idx]}</span><span>${esc(opt)}</span>`;
     btn.onclick=()=>pickP(idx,btn);
     el.appendChild(btn);
   });
@@ -311,7 +487,7 @@ function pickP(idx,btn){
   },300);
 }
 
-/* ═══ RESULT + AUTO KIRIM ═══ */
+/* ═══ RESULT ═══ */
 function showResult(){
   let sc=0;
   p.a.forEach((a,i)=>{if(a===puzzle.answers[i])sc++;});
@@ -328,10 +504,8 @@ function showResult(){
     <span class="eb">${e}</span>
     <div class="sb">${pct}%</div>
     <h2>${t}</h2>
-    <p>${playerName}, kamu jawab ${sc} dari ${total} benar.<br/>${d}</p>
+    <p>${esc(playerName)}, kamu jawab ${sc} dari ${total} benar.<br/>${d}</p>
   `;
-
-  // Auto-kirim ke Vercel KV
   saveScore(puzzle.code, playerName, sc, total);
   go("s-result");
 }
@@ -343,12 +517,10 @@ async function saveScore(code, name, skor, total){
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code, nama: name, skor, total })
     });
-  } catch(e) {
-    console.log("Gagal kirim skor:", e);
-  }
+  } catch(e) { console.log("Gagal kirim skor:", e); }
 }
 
-/* ═══ RANKING ═══ */
+/* ═══ RANK ═══ */
 async function viewRanking(){
   if(!puzzle)return;
   document.getElementById("rankOwner").textContent=puzzle.name;
@@ -358,14 +530,12 @@ async function viewRanking(){
   go("s-rank");
 
   try {
-    const res = await fetch(`/api/rank?code=${puzzle.code}`);
-    const data = await res.json();
-
+    const res=await fetch(`/api/rank?code=${puzzle.code}`);
+    const data=await res.json();
     if(!data.length){
       list.innerHTML=`<div class="rank-empty">Belum ada yang main.<br/>Share link ke teman dulu! 🔗</div>`;
       return;
     }
-
     list.innerHTML="";
     data.forEach((d,i)=>{
       const pct=Math.round((d.skor/d.total)*100);
@@ -382,12 +552,12 @@ async function viewRanking(){
       `;
       list.appendChild(el);
     });
-  } catch(e) {
+  } catch(e){
     list.innerHTML=`<div class="rank-empty">Gagal memuat ranking 😅<br/>Coba lagi nanti.</div>`;
   }
 }
 
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 </script>
 
 </body>
