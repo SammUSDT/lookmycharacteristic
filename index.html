@@ -146,7 +146,6 @@
   }
   .btn-secondary:hover { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
 
-  /* 🆕 Viral button */
   .btn-viral {
     background: linear-gradient(135deg, #f59e0b, #ec4899, #7c3aed);
     background-size: 200% 200%;
@@ -302,14 +301,6 @@
     border-color: var(--accent);
     background: var(--accent-glow);
   }
-  .option.correct {
-    border-color: var(--green);
-    background: rgba(16,185,129,0.12);
-  }
-  .option.wrong {
-    border-color: var(--red);
-    background: rgba(239,68,68,0.12);
-  }
   .option .letter {
     width: 22px; height: 22px;
     border-radius: 6px;
@@ -322,8 +313,55 @@
     flex-shrink: 0;
   }
   .option.selected .letter { background: var(--accent); }
-  .option.correct .letter { background: var(--green); }
-  .option.wrong .letter { background: var(--red); }
+
+  /* Custom question builder */
+  .custom-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 13px 14px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    margin-bottom: 9px;
+    transition: border-color 0.2s;
+  }
+  .custom-input:focus { border-color: var(--accent); }
+  .custom-input::placeholder { color: #4a4a5a; }
+
+  .input-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .mode-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .mode-btn {
+    padding: 12px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mode-btn.active {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    color: #fff;
+  }
 
   /* Link box */
   .link-box {
@@ -380,7 +418,7 @@
   .share-btn:hover { border-color: var(--accent); transform: translateY(-2px); }
   .share-btn .icon { font-size: 20px; }
 
-  /* Verdict / Result */
+  /* Verdict */
   .verdict {
     text-align: center;
     padding: 30px 20px;
@@ -436,7 +474,7 @@
   .review-item .q { color: var(--muted); font-size: 12px; margin-bottom: 2px; }
   .review-item .a { color: #fff; }
 
-  /* Input name */
+  /* Name input */
   .name-input {
     width: 100%;
     background: var(--surface);
@@ -453,6 +491,69 @@
   .name-input:focus { border-color: var(--accent); }
   .name-input::placeholder { color: #4a4a5a; }
 
+  /* Question picker */
+  .picker-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .picker-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    align-items: flex-start;
+  }
+  .picker-item:hover { border-color: var(--accent); }
+  .picker-item.checked {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+  }
+  .picker-item .check {
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    margin-top: 2px;
+    transition: all 0.2s;
+  }
+  .picker-item.checked .check {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .picker-item .q-text-sm {
+    font-size: 13.5px;
+    line-height: 1.4;
+    color: #c0c0cc;
+  }
+  .picker-item.checked .q-text-sm { color: #fff; font-weight: 600; }
+
+  .picker-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .picker-count {
+    font-weight: 700;
+    color: var(--accent);
+  }
+
   footer {
     margin-top: auto;
     padding-top: 28px;
@@ -466,6 +567,7 @@
   .hidden { display: none !important; }
   .text-center { text-align: center; }
   .mt-3 { margin-top: 12px; }
+  .mt-4 { margin-top: 16px; }
 
   @media (max-width: 480px) {
     .hero h1 { font-size: 31px; }
@@ -496,7 +598,7 @@
       <div class="steps">
         <div class="step">
           <div class="num">1</div>
-          <div class="txt"><strong>Bikin puzzle.</strong><br/>Jawab 10 pertanyaan tentang dirimu sendiri.</div>
+          <div class="txt"><strong>Bikin puzzle.</strong><br/>Pilih atau tulis sendiri pertanyaan tentang dirimu.</div>
         </div>
         <div class="step">
           <div class="num">2</div>
@@ -509,16 +611,72 @@
       </div>
     </div>
 
-    <button class="btn" onclick="startBuilder()">Bikin Puzzle →</button>
+    <button class="btn" onclick="showScreen('screen-mode')">Bikin Puzzle →</button>
     <button class="btn btn-secondary" onclick="loadPuzzleFromUrl()">Masukin Link Puzzle</button>
 
     <footer>LOOKMYCHARACTERISTIC // <span>NOVEL PROTOTYPE</span></footer>
   </div>
 
-  <!-- ═══ SCREEN: BUILDER ═══ -->
+  <!-- ═══ SCREEN: MODE (pilih: dari bank / custom) ═══ -->
+  <div class="screen" id="screen-mode">
+    <div class="hero" style="text-align:left; margin-bottom:20px;">
+      <h1 style="font-size:26px;">Mau gimana?</h1>
+      <p style="margin:0;">Pilih dari pertanyaan siap pakai, atau tulis sendiri.</p>
+    </div>
+
+    <button class="btn" onclick="startBankMode()">
+      📚 Pilih dari Bank Pertanyaan
+      <span style="opacity:0.7; font-weight:500; font-size:12px; margin-left:6px;">(15 pertanyaan siap pakai)</span>
+    </button>
+
+    <button class="btn btn-secondary" onclick="startCustomMode()">
+      ✍️ Tulis Pertanyaan Sendiri
+    </button>
+
+    <button class="btn btn-ghost" onclick="showScreen('screen-home')">← Kembali</button>
+  </div>
+
+  <!-- ═══ SCREEN: PICKER (pilih dari bank) ═══ -->
+  <div class="screen" id="screen-picker">
+    <div class="hero" style="text-align:left; margin-bottom:16px;">
+      <h1 style="font-size:24px;">Pilih pertanyaan</h1>
+      <p style="margin:0;">Pilih 10 pertanyaan yang paling ngena buat kamu.</p>
+    </div>
+
+    <div class="picker-list" id="pickerList"></div>
+
+    <div class="picker-footer">
+      <span>Dipilih: <span class="picker-count" id="pickerCount">0</span> / 10</span>
+      <span style="font-size:12px;">Minimal 5 pertanyaan</span>
+    </div>
+
+    <button class="btn" id="pickerBtn" onclick="confirmPicker()" disabled>Lanjut Jawab →</button>
+    <button class="btn btn-ghost" onclick="showScreen('screen-mode')">← Kembali</button>
+  </div>
+
+  <!-- ═══ SCREEN: CUSTOM BUILDER ═══ -->
+  <div class="screen" id="screen-custom">
+    <div class="hero" style="text-align:left; margin-bottom:16px;">
+      <h1 style="font-size:24px;">Bikin pertanyaan sendiri</h1>
+      <p style="margin:0;">Tulis pertanyaan + 2-4 pilihan jawaban. Minimal 5 pertanyaan.</p>
+    </div>
+
+    <div id="customQuestions"></div>
+
+    <button class="btn btn-secondary" onclick="addCustomQuestion()">+ Tambah Pertanyaan</button>
+
+    <div class="picker-footer">
+      <span>Total: <span class="picker-count" id="customCount">0</span> pertanyaan</span>
+    </div>
+
+    <button class="btn" id="customBtn" onclick="confirmCustom()" disabled>Lanjut Jawab →</button>
+    <button class="btn btn-ghost" onclick="showScreen('screen-mode')">← Kembali</button>
+  </div>
+
+  <!-- ═══ SCREEN: BUILDER (jawab sendiri) ═══ -->
   <div class="screen" id="screen-builder">
     <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="q-counter" id="qCounter">QUESTION 1 / 10</div>
+    <div class="q-counter" id="qCounter">QUESTION 1</div>
     <div class="q-text" id="qText"></div>
     <div class="q-hint" id="qHint">Pilih jawaban yang paling benar tentang kamu</div>
     <div class="options" id="options"></div>
@@ -571,7 +729,7 @@
   <!-- ═══ SCREEN: PLAYER ═══ -->
   <div class="screen" id="screen-player">
     <div class="progress-bar"><div class="progress-fill" id="playerProgressFill"></div></div>
-    <div class="q-counter" id="playerCounter">QUESTION 1 / 10</div>
+    <div class="q-counter" id="playerCounter">QUESTION 1</div>
     <div class="q-text" id="playerQText"></div>
     <div class="q-hint" id="playerHint"></div>
     <div class="options" id="playerOptions"></div>
@@ -582,7 +740,6 @@
     <div class="verdict" id="resultVerdict"></div>
     <div id="reviewList"></div>
 
-    <!-- 🆕 TOMBOL VIRAL -->
     <button class="btn btn-viral mt-3" onclick="createOwn()">
       <span class="viral-icon">✨</span>
       <span>Buat Kuis Mu Sendiri!</span>
@@ -597,27 +754,38 @@
 
 <script>
 /* ═══════════════════════════════════════════
-   QUESTION BANK
+   QUESTION BANK — 15 pertanyaan siap pakai
    ═══════════════════════════════════════════ */
 const QUESTION_BANK = [
-  { q: "Warna favorit aku?", opts: ["Merah", "Biru", "Hitam", "Ungu"] },
-  { q: "Aku biasanya tidur jam...", opts: ["Sebelum jam 10", "Jam 10–12", "Jam 12–2", "Setelah jam 2"] },
-  { q: "Makanan comfort food aku?", opts: ["Pizza", "Mie", "Es krim", "Kopi"] },
-  { q: "Yang paling aku takutin?", opts: ["Ketinggian", "Kesepian", "Gagal", "Laba-laba"] },
-  { q: "Aplikasi yang paling sering aku buka?", opts: ["Instagram", "TikTok", "WhatsApp", "X"] },
-  { q: "Liburan impian aku?", opts: ["Pantai", "Gunung", "Tokyo", "Di rumah aja"] },
-  { q: "Yang paling bikin aku kesel?", opts: ["Wifi lemot", "Orang fake", "Suara ngunyah", "Datang telat"] },
-  { q: "Love language aku?", opts: ["Kata-kata", "Quality time", "Sentuhan", "Hadiah"] },
-  { q: "Kopi atau teh?", opts: ["Kopi", "Teh", "Dua-duanya", "Nggak dua-duanya"] },
-  { q: "Kalau bisa punya 1 superpower?", opts: ["Ngilang", "Baca pikiran", "Time travel", "Teleportasi"] }
+  { q: "Di sekolah, aku biasa duduk di...", opts: ["Depan", "Belakang", "Tengah", "Pindah-pindah"] },
+  { q: "Aku paling sering ngapain pas jam kosong?", opts: ["Tidur", "Main HP", "Ngobrol", "Jajan ke kantin"] },
+  { q: "Warna tas/sepatu aku?", opts: ["Hitam", "Putih", "Warna terang", "Ganti-ganti"] },
+  { q: "Aku orangnya...", opts: ["Pendiam", "Cerewet", "Kalem tapi absurd", "Tergantung mood"] },
+  { q: "Aku paling gak bisa kalau disuruh...", opts: ["Bangun pagi", "Public speaking", "Nunggu lama", "Senyum ke orang"] },
+  { q: "Aku paling sering bawa apa ke sekolah?", opts: ["Botol minum", "Headset", "Buku catatan", "Cuma HP & dompet"] },
+  { q: "Kalau jam istirahat, aku paling sering...", opts: ["Di kantin", "Di kelas", "Di perpus", "Ngilang entah ke mana"] },
+  { q: "Aku paling bete kalau...", opts: ["Hujan", "Pelajaran matematika", "Dikelompokin random", "Ditanya 'kenapa diem?'"] },
+  { q: "Kalau aku udah diem, itu artinya...", opts: ["Lagi bete", "Lagi mikir", "Lagi capek", "Lagi ngantuk"] },
+  { q: "Satu hal yang orang sering salah paham tentang aku?", opts: ["Aku sombong (padahal malu)", "Aku gak peduli (padahal peka)", "Aku pendiem (padahal cerewet)", "Aku santai (padahal overthinking)"] },
+  { q: "Aku paling sering dengerin musik genre apa?", opts: ["Pop", "Rap/Hip-hop", "Rock/Metal", "Gak dengerin musik"] },
+  { q: "Kalau aku lagi sendirian, biasanya aku...", opts: ["Scroll HP", "Tidur", "Nulis/mikir", "Dengerin musik"] },
+  { q: "Aku tipe orang yang...", opts: ["On time", "Sering telat", "Datang paling awal", "Tergantung siapa yang ngajak"] },
+  { q: "Kalau ada masalah, aku biasanya...", opts: ["Diem aja", "Cerita ke temen", "Nangis dulu", "Pura-pura gak ada masalah"] },
+  { q: "Hal yang bikin aku respect sama orang?", opts: ["Jujur", "Pinter", "Humoris", "Bisa diem"] }
 ];
 
 /* ═══════════════════════════════════════════
    STATE
    ═══════════════════════════════════════════ */
+let selectedQuestions = [];   // daftar pertanyaan yang dipilih user (bank mode)
+let customQuestions = [];     // daftar pertanyaan custom
+let activeQuestions = [];     // yang lagi dipake (bank atau custom)
 let builderState = { current: 0, answers: [] };
 let currentPuzzle = null;
 let playerState = { current: 0, answers: [] };
+
+const MIN_QUESTIONS = 5;
+const MAX_QUESTIONS = 10;
 
 /* ═══════════════════════════════════════════
    NAVIGATION
@@ -629,245 +797,80 @@ function showScreen(id) {
 }
 
 /* ═══════════════════════════════════════════
-   BUILDER
+   MODE: BANK
    ═══════════════════════════════════════════ */
-function startBuilder() {
+function startBankMode() {
+  selectedQuestions = [];
+  renderPicker();
+  showScreen("screen-picker");
+}
+
+function renderPicker() {
+  const list = document.getElementById("pickerList");
+  list.innerHTML = "";
+  QUESTION_BANK.forEach((q, idx) => {
+    const isChecked = selectedQuestions.includes(idx);
+    const el = document.createElement("div");
+    el.className = "picker-item" + (isChecked ? " checked" : "");
+    el.innerHTML = `
+      <div class="check">${isChecked ? "✓" : ""}</div>
+      <div class="q-text-sm">${q.q}</div>
+    `;
+    el.onclick = () => togglePick(idx);
+    list.appendChild(el);
+  });
+  updatePickerUI();
+}
+
+function togglePick(idx) {
+  const i = selectedQuestions.indexOf(idx);
+  if (i >= 0) {
+    selectedQuestions.splice(i, 1);
+  } else {
+    if (selectedQuestions.length >= MAX_QUESTIONS) {
+      alert(`Maksimal ${MAX_QUESTIONS} pertanyaan.`);
+      return;
+    }
+    selectedQuestions.push(idx);
+  }
+  renderPicker();
+}
+
+function updatePickerUI() {
+  const count = selectedQuestions.length;
+  document.getElementById("pickerCount").textContent = count;
+  document.getElementById("pickerBtn").disabled = count < MIN_QUESTIONS;
+}
+
+function confirmPicker() {
+  if (selectedQuestions.length < MIN_QUESTIONS) return;
+  activeQuestions = selectedQuestions
+    .sort((a, b) => a - b)
+    .map(i => QUESTION_BANK[i]);
   builderState = { current: 0, answers: [] };
   showScreen("screen-builder");
   renderBuilderQuestion();
 }
 
-function renderBuilderQuestion() {
-  const i = builderState.current;
-  const q = QUESTION_BANK[i];
-  document.getElementById("progressFill").style.width = (i / QUESTION_BANK.length * 100) + "%";
-  document.getElementById("qCounter").textContent = `QUESTION ${i + 1} / ${QUESTION_BANK.length}`;
-  document.getElementById("qText").textContent = q.q;
-
-  const letters = ["A", "B", "C", "D"];
-  const optsEl = document.getElementById("options");
-  optsEl.innerHTML = "";
-  q.opts.forEach((opt, idx) => {
-    const btn = document.createElement("button");
-    btn.className = "option";
-    btn.innerHTML = `<span class="letter">${letters[idx]}</span><span>${opt}</span>`;
-    btn.onclick = () => selectBuilderAnswer(idx);
-    optsEl.appendChild(btn);
-  });
-}
-
-function selectBuilderAnswer(idx) {
-  document.querySelectorAll("#options .option").forEach((el, k) => {
-    el.classList.toggle("selected", k === idx);
-  });
-  builderState.answers[builderState.current] = idx;
-
-  setTimeout(() => {
-    if (builderState.current + 1 < QUESTION_BANK.length) {
-      builderState.current++;
-      renderBuilderQuestion();
-    } else {
-      document.getElementById("progressFill").style.width = "100%";
-      setTimeout(() => showScreen("screen-name"), 350);
-    }
-  }, 300);
-}
-
 /* ═══════════════════════════════════════════
-   GENERATE LINK
+   MODE: CUSTOM
    ═══════════════════════════════════════════ */
-function generateLink() {
-  const name = document.getElementById("creatorName").value.trim() || "Someone";
-  const code = randomCode(12);
-  const puzzle = { name, answers: builderState.answers };
-  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(puzzle))));
-  const url = `${location.origin}${location.pathname}#puzzle/${code}?d=${encoded}`;
-  document.getElementById("shareLink").value = url;
-  currentPuzzle = { ...puzzle, code };
-  showScreen("screen-share");
+function startCustomMode() {
+  customQuestions = [emptyCustomQ()];
+  renderCustomBuilder();
+  showScreen("screen-custom");
 }
 
-function randomCode(len) {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let s = "";
-  for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * chars.length)];
-  return s;
+function emptyCustomQ() {
+  return { q: "", opts: ["", "", "", ""] };
 }
 
-/* ═══════════════════════════════════════════
-   SHARE + COPY
-   ═══════════════════════════════════════════ */
-function copyLink() {
-  const input = document.getElementById("shareLink");
-  input.select();
-  navigator.clipboard.writeText(input.value).then(() => {
-    const btn = input.nextElementSibling;
-    const orig = btn.textContent;
-    btn.textContent = "Copied!";
-    setTimeout(() => btn.textContent = orig, 1500);
-  });
-}
-
-function shareTo(platform) {
-  const link = document.getElementById("shareLink").value;
-  const text = "Coba tebak, seberapa kenal kamu sama aku? 🧩";
-  const urls = {
-    whatsapp: `https://wa.me/?text=${encodeURIComponent(text + " " + link)}`,
-    telegram: `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`,
-    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(link)}`
-  };
-  window.open(urls[platform], "_blank");
-}
-
-/* ═══════════════════════════════════════════
-   LOAD PUZZLE FROM URL
-   ═══════════════════════════════════════════ */
-function loadPuzzleFromUrl() {
-  const hash = location.hash;
-  const match = hash.match(/#puzzle\/([^?]+)\?d=(.+)/);
-  if (!match) {
-    const link = prompt("Tempel link puzzle di sini:");
-    if (!link) return;
-    try {
-      const url = new URL(link);
-      const m = url.hash.match(/#puzzle\/([^?]+)\?d=(.+)/);
-      if (!m) throw new Error("Link gak valid");
-      const puzzle = JSON.parse(decodeURIComponent(escape(atob(m[2]))));
-      startPlayer(puzzle);
-    } catch (e) {
-      alert("Link puzzle gak valid. Coba lagi.");
-    }
-    return;
-  }
-  try {
-    const puzzle = JSON.parse(decodeURIComponent(escape(atob(match[2]))));
-    startPlayer(puzzle);
-  } catch (e) {
-    alert("Puzzle rusak. Minta link baru.");
-  }
-}
-
-/* Auto-load kalau ada hash pas buka */
-window.addEventListener("load", () => {
-  if (location.hash.startsWith("#puzzle/")) {
-    setTimeout(loadPuzzleFromUrl, 100);
-  }
-});
-
-/* ═══════════════════════════════════════════
-   PLAYER
-   ═══════════════════════════════════════════ */
-function startPlayer(puzzle) {
-  currentPuzzle = puzzle;
-  playerState = { current: 0, answers: [] };
-  document.getElementById("playerHint").textContent = `Tebak jawaban ${puzzle.name}`;
-  showScreen("screen-player");
-  renderPlayerQuestion();
-}
-
-function previewAsFriend() {
-  if (!currentPuzzle) return;
-  startPlayer(currentPuzzle);
-}
-
-function renderPlayerQuestion() {
-  const i = playerState.current;
-  const q = QUESTION_BANK[i];
-  document.getElementById("playerProgressFill").style.width = (i / QUESTION_BANK.length * 100) + "%";
-  document.getElementById("playerCounter").textContent = `QUESTION ${i + 1} / ${QUESTION_BANK.length}`;
-  document.getElementById("playerQText").textContent = q.q;
-
-  const letters = ["A", "B", "C", "D"];
-  const optsEl = document.getElementById("playerOptions");
-  optsEl.innerHTML = "";
-  q.opts.forEach((opt, idx) => {
-    const btn = document.createElement("button");
-    btn.className = "option";
-    btn.innerHTML = `<span class="letter">${letters[idx]}</span><span>${opt}</span>`;
-    btn.onclick = () => selectPlayerAnswer(idx);
-    optsEl.appendChild(btn);
-  });
-}
-
-function selectPlayerAnswer(idx) {
-  document.querySelectorAll("#playerOptions .option").forEach((el, k) => {
-    el.classList.toggle("selected", k === idx);
-  });
-  playerState.answers[playerState.current] = idx;
-
-  setTimeout(() => {
-    if (playerState.current + 1 < QUESTION_BANK.length) {
-      playerState.current++;
-      renderPlayerQuestion();
-    } else {
-      document.getElementById("playerProgressFill").style.width = "100%";
-      setTimeout(showResult, 350);
-    }
-  }, 300);
-}
-
-/* ═══════════════════════════════════════════
-   RESULT
-   ═══════════════════════════════════════════ */
-function showResult() {
-  const correct = currentPuzzle.answers;
-  const player = playerState.answers;
-  let score = 0;
-  player.forEach((ans, i) => { if (ans === correct[i]) score++; });
-  const pct = Math.round((score / QUESTION_BANK.length) * 100);
-
-  let emoji, title, desc;
-  if (pct === 100) { emoji = "👑"; title = "Perfect!"; desc = `${currentPuzzle.name} bakal kaget. Kamu bener-bener kenal dia.`; }
-  else if (pct >= 80) { emoji = "🔥"; title = "Kenal banget!"; desc = "Kamu salah satu orang yang paling ngerti dia."; }
-  else if (pct >= 60) { emoji = "😎"; title = "Lumayan kenal"; desc = "Kamu cukup ngerti dia, tapi masih ada yang belum."; }
-  else if (pct >= 40) { emoji = "🤔"; title = "Setengah kenal"; desc = "Kamu kenal dia, tapi belum dalam."; }
-  else if (pct >= 20) { emoji = "😬"; title = "Kurang kenal"; desc = "Kamu perlu ngobrol lebih banyak sama dia."; }
-  else { emoji = "💀"; title = "Nggak kenal"; desc = "Kamu yakin ini temen kamu?"; }
-
-  document.getElementById("resultVerdict").innerHTML = `
-    <span class="emoji-big">${emoji}</span>
-    <div class="score-big">${pct}%</div>
-    <h2>${title}</h2>
-    <p>Kamu jawab ${score} dari ${QUESTION_BANK.length} benar.<br/>${desc}</p>
-  `;
-
-  const reviewEl = document.getElementById("reviewList");
-  reviewEl.innerHTML = "";
-  QUESTION_BANK.forEach((q, i) => {
-    const isCorrect = player[i] === correct[i];
-    const item = document.createElement("div");
-    item.className = "review-item " + (isCorrect ? "correct" : "wrong");
-    item.innerHTML = `
-      <div class="mark">${isCorrect ? "✓" : "✕"}</div>
-      <div class="body">
-        <div class="q">${q.q}</div>
-        <div class="a">Jawaban benar: <strong>${q.opts[correct[i]]}</strong></div>
-      </div>
-    `;
-    reviewEl.appendChild(item);
-  });
-
-  showScreen("screen-result");
-}
-
-function tryAgain() {
-  if (!currentPuzzle) return;
-  playerState = { current: 0, answers: [] };
-  showScreen("screen-player");
-  renderPlayerQuestion();
-}
-
-function createOwn() {
-  location.hash = "";
-  currentPuzzle = null;
-  showScreen("screen-home");
-  setTimeout(startBuilder, 300);
-}
-
-/* ═══════════════════════════════════════════
-   INIT
-   ═══════════════════════════════════════════ */
-</script>
-
-</body>
-  </html>
+function renderCustomBuilder() {
+  const wrap = document.getElementById("customQuestions");
+  wrap.innerHTML = "";
+  customQuestions.forEach((cq, i) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.marginBottom = "12px";
+    card.innerHTML = `
+      <div class="input-label">P
