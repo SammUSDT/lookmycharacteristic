@@ -1,1200 +1,393 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Look My Characteristic</title>
+<script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-  :root {
-    --bg: #0a0a0f;
-    --surface: #14141c;
-    --surface-2: #1c1c26;
-    --border: #23232e;
-    --text: #ffffff;
-    --muted: #8a8a99;
-    --accent: #7c3aed;
-    --accent-2: #06b6d4;
-    --accent-glow: rgba(124, 58, 237, 0.25);
-    --green: #10b981;
-    --yellow: #f59e0b;
-    --red: #ef4444;
-  }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px 20px 60px;
-    overflow-x: hidden;
-  }
-
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(circle at 15% 5%, rgba(124,58,237,0.15), transparent 45%),
-      radial-gradient(circle at 85% 95%, rgba(6,182,212,0.12), transparent 45%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .container {
-    width: 100%;
-    max-width: 520px;
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: calc(100vh - 84px);
-  }
-
-  /* Logo */
-  .logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    font-size: 16px;
-    font-weight: 800;
-    letter-spacing: -0.3px;
-    margin-bottom: 28px;
-  }
-  .logo .mark {
-    width: 28px; height: 28px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-  }
-  .logo .name { color: #fff; }
-  .logo .name .lite { color: var(--muted); font-weight: 500; }
-
-  /* Screens */
-  .screen {
-    display: none;
-    flex-direction: column;
-    flex: 1;
-    animation: fadeIn 0.4s ease;
-  }
-  .screen.active { display: flex; }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* Hero */
-  .hero { text-align: center; margin-bottom: 28px; }
-  .hero h1 {
-    font-size: 38px;
-    font-weight: 900;
-    line-height: 1.08;
-    letter-spacing: -1.2px;
-    margin-bottom: 14px;
-  }
-  .hero h1 .grad {
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .hero p {
-    color: var(--muted);
-    font-size: 15px;
-    line-height: 1.6;
-    max-width: 380px;
-    margin: 0 auto;
-  }
-
-  /* Buttons */
-  .btn {
-    width: 100%;
-    background: linear-gradient(135deg, var(--accent), #9333ea);
-    color: #fff;
-    border: none;
-    border-radius: 14px;
-    padding: 17px;
-    font-size: 15px;
-    font-weight: 700;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 8px 24px var(--accent-glow);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px var(--accent-glow); }
-  .btn:active { transform: translateY(0); }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-  .btn-secondary {
-    background: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
-    box-shadow: none;
-    margin-top: 10px;
-  }
-  .btn-secondary:hover { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
-
-  .btn-viral {
-    background: linear-gradient(135deg, #f59e0b, #ec4899, #7c3aed);
-    background-size: 200% 200%;
-    animation: gradientShift 4s ease infinite;
-    box-shadow: 0 8px 32px rgba(236, 72, 153, 0.35);
-    position: relative;
-    overflow: hidden;
-    font-size: 16px;
-    padding: 18px;
-    margin-bottom: 4px;
-  }
-  .btn-viral::before {
-    content: "";
-    position: absolute;
-    top: 0; left: -100%;
-    width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    animation: shine 3s infinite;
-  }
-  .btn-viral:hover {
-    transform: translateY(-2px) scale(1.01);
-    box-shadow: 0 12px 40px rgba(236, 72, 153, 0.5);
-  }
-  .btn-viral .viral-icon {
-    display: inline-block;
-    animation: spin 3s linear infinite;
-  }
-  @keyframes gradientShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-  }
-  @keyframes shine {
-    0% { left: -100%; }
-    60%, 100% { left: 100%; }
-  }
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .btn-ghost {
-    background: transparent;
-    border: none;
-    color: var(--muted);
-    font-size: 14px;
-    padding: 12px;
-    cursor: pointer;
-    font-family: inherit;
-    margin-top: 8px;
-  }
-  .btn-ghost:hover { color: var(--accent); }
-
-  /* Card */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 22px;
-    margin-bottom: 14px;
-  }
-  .card h3 {
-    font-size: 15px;
-    font-weight: 700;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .card p { color: var(--muted); font-size: 14px; line-height: 1.6; }
-
-  /* Steps */
-  .steps { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
-  .step {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    padding: 12px 14px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-  }
-  .step .num {
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 800;
-    flex-shrink: 0;
-  }
-  .step .txt { font-size: 13.5px; color: #c0c0cc; line-height: 1.5; }
-  .step .txt strong { color: #fff; }
-
-  /* Progress */
-  .progress-bar {
-    height: 5px;
-    background: var(--border);
-    border-radius: 100px;
-    overflow: hidden;
-    margin-bottom: 22px;
-  }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent-2));
-    border-radius: 100px;
-    transition: width 0.4s ease;
-    width: 0%;
-  }
-
-  .q-counter {
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 8px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    font-weight: 700;
-  }
-  .q-text {
-    font-size: 21px;
-    font-weight: 700;
-    line-height: 1.3;
-    margin-bottom: 6px;
-    letter-spacing: -0.4px;
-  }
-  .q-hint {
-    font-size: 13px;
-    color: var(--muted);
-    margin-bottom: 18px;
-  }
-
-  /* Options */
-  .options { display: flex; flex-direction: column; gap: 9px; }
-  .option {
-    padding: 15px 16px;
-    background: var(--surface);
-    border: 2px solid var(--border);
-    border-radius: 13px;
-    font-size: 14.5px;
-    font-weight: 600;
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: inherit;
-    text-align: left;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .option:hover { border-color: var(--accent); }
-  .option.selected {
-    border-color: var(--accent);
-    background: var(--accent-glow);
-  }
-  .option .letter {
-    width: 22px; height: 22px;
-    border-radius: 6px;
-    background: var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 800;
-    flex-shrink: 0;
-  }
-  .option.selected .letter { background: var(--accent); }
-
-  /* Custom question builder */
-  .custom-input {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 13px 14px;
-    color: var(--text);
-    font-size: 14px;
-    font-family: inherit;
-    outline: none;
-    margin-bottom: 9px;
-    transition: border-color 0.2s;
-  }
-  .custom-input:focus { border-color: var(--accent); }
-  .custom-input::placeholder { color: #4a4a5a; }
-
-  .input-label {
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 4px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-  }
-
-  .mode-toggle {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  .mode-btn {
-    padding: 12px;
-    background: var(--surface);
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    color: var(--muted);
-    font-size: 13px;
-    font-weight: 700;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .mode-btn.active {
-    border-color: var(--accent);
-    background: var(--accent-glow);
-    color: #fff;
-  }
-
-  /* Link box */
-  .link-box {
-    display: flex;
-    gap: 8px;
-    margin: 14px 0;
-  }
-  .link-box input {
-    flex: 1;
-    background: #0a0a0f;
-    border: 1px solid var(--border);
-    border-radius: 11px;
-    padding: 13px 14px;
-    color: var(--text);
-    font-size: 13px;
-    font-family: ui-monospace, "SF Mono", monospace;
-    outline: none;
-  }
-  .link-box button {
-    padding: 0 16px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 11px;
-    font-weight: 700;
-    font-family: inherit;
-    cursor: pointer;
-    font-size: 13px;
-  }
-
-  /* Share */
-  .share-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 9px;
-    margin: 14px 0;
-  }
-  .share-btn {
-    padding: 14px 6px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    color: var(--text);
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s;
-  }
-  .share-btn:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .share-btn .icon { font-size: 20px; }
-
-  /* Verdict */
-  .verdict {
-    text-align: center;
-    padding: 30px 20px;
-    border-radius: 20px;
-    margin-bottom: 18px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-  }
-  .verdict .emoji-big { font-size: 54px; margin-bottom: 12px; display: block; }
-  .verdict h2 {
-    font-size: 24px;
-    font-weight: 900;
-    letter-spacing: -0.6px;
-    margin-bottom: 8px;
-  }
-  .verdict p { color: var(--muted); font-size: 14px; line-height: 1.55; }
-  .verdict .score-big {
-    font-size: 52px;
-    font-weight: 900;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 10px 0 6px;
-    line-height: 1;
-  }
-
-  /* Review list */
-  .review-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 12px 14px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    margin-bottom: 8px;
-    font-size: 13.5px;
-  }
-  .review-item .mark {
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 800;
-    flex-shrink: 0;
-  }
-  .review-item.correct .mark { background: var(--green); }
-  .review-item.wrong .mark { background: var(--red); }
-  .review-item .body { flex: 1; line-height: 1.5; }
-  .review-item .q { color: var(--muted); font-size: 12px; margin-bottom: 2px; }
-  .review-item .a { color: #fff; }
-
-  /* Name input */
-  .name-input {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 15px 16px;
-    color: var(--text);
-    font-size: 15px;
-    font-family: inherit;
-    outline: none;
-    margin-bottom: 10px;
-    transition: border-color 0.2s;
-  }
-  .name-input:focus { border-color: var(--accent); }
-  .name-input::placeholder { color: #4a4a5a; }
-
-  /* Question picker */
-  .picker-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 400px;
-    overflow-y: auto;
-    padding-right: 4px;
-  }
-  .picker-item {
-    display: flex;
-    gap: 12px;
-    padding: 12px 14px;
-    background: var(--surface);
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    align-items: flex-start;
-  }
-  .picker-item:hover { border-color: var(--accent); }
-  .picker-item.checked {
-    border-color: var(--accent);
-    background: var(--accent-glow);
-  }
-  .picker-item .check {
-    width: 20px; height: 20px;
-    border-radius: 6px;
-    border: 2px solid var(--border);
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    margin-top: 2px;
-    transition: all 0.2s;
-  }
-  .picker-item.checked .check {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-  .picker-item .q-text-sm {
-    font-size: 13.5px;
-    line-height: 1.4;
-    color: #c0c0cc;
-  }
-  .picker-item.checked .q-text-sm { color: #fff; font-weight: 600; }
-
-  .picker-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 16px;
-    margin-bottom: 12px;
-    font-size: 13px;
-    color: var(--muted);
-  }
-  .picker-count {
-    font-weight: 700;
-    color: var(--accent);
-  }
-
-  footer {
-    margin-top: auto;
-    padding-top: 28px;
-    text-align: center;
-    font-size: 11.5px;
-    color: #3a3a4a;
-    letter-spacing: 0.5px;
-  }
-  footer span { color: var(--accent); }
-
-  .hidden { display: none !important; }
-  .text-center { text-align: center; }
-  .mt-3 { margin-top: 12px; }
-  .mt-4 { margin-top: 16px; }
-
-  @media (max-width: 480px) {
-    .hero h1 { font-size: 31px; }
-    .q-text { font-size: 18.5px; }
-    .verdict .score-big { font-size: 44px; }
-  }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#0a0a0f;--card:#14141c;--line:#23232e;--txt:#fff;--muted:#8a8a99;--acc:#7c3aed;--acc2:#06b6d4;--gold:#f59e0b}
+body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 20px 60px}
+body::before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 15% 5%,rgba(124,58,237,.15),transparent 45%),radial-gradient(circle at 85% 95%,rgba(6,182,212,.12),transparent 45%);pointer-events:none}
+.c{width:100%;max-width:520px;position:relative;z-index:1;display:flex;flex-direction:column;min-height:calc(100vh - 84px)}
+.logo{display:flex;align-items:center;justify-content:center;gap:10px;font-size:16px;font-weight:800;margin-bottom:28px}
+.logo .m{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center}
+.logo .lite{color:var(--muted);font-weight:500}
+.s{display:none;flex-direction:column;flex:1;animation:fade .4s}
+.s.on{display:flex}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hero{text-align:center;margin-bottom:28px}
+.hero h1{font-size:36px;font-weight:900;line-height:1.08;letter-spacing:-1.2px;margin-bottom:14px}
+.hero .g{background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--muted);font-size:15px;line-height:1.6;max-width:380px;margin:0 auto}
+.btn{width:100%;background:linear-gradient(135deg,var(--acc),#9333ea);color:#fff;border:none;border-radius:14px;padding:17px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:.2s;box-shadow:0 8px 24px rgba(124,58,237,.25);display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover{transform:translateY(-2px)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn2{background:var(--card);color:var(--txt);border:1px solid var(--line);box-shadow:none;margin-top:10px}
+.btn2:hover{border-color:var(--acc)}
+.btng{background:transparent;border:none;color:var(--muted);font-size:14px;padding:12px;cursor:pointer;font-family:inherit;margin-top:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:14px}
+.card h3{font-size:15px;font-weight:700;margin-bottom:10px}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:flex;gap:12px;padding:12px 14px;background:#1c1c26;border:1px solid var(--line);border-radius:12px}
+.step .n{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.step .t{font-size:13.5px;color:#c0c0cc;line-height:1.5}
+.step .t b{color:#fff}
+.bar{height:5px;background:var(--line);border-radius:100px;overflow:hidden;margin-bottom:22px}
+.bar>div{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:100px;transition:width .4s;width:0}
+.cnt{font-size:12px;color:var(--muted);margin-bottom:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700}
+.qt{font-size:21px;font-weight:700;line-height:1.3;margin-bottom:6px;letter-spacing:-.4px}
+.qh{font-size:13px;color:var(--muted);margin-bottom:18px}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{padding:15px 16px;background:var(--card);border:2px solid var(--line);border-radius:13px;font-size:14.5px;font-weight:600;color:var(--txt);cursor:pointer;transition:.2s;font-family:inherit;text-align:left;display:flex;align-items:center;gap:12px}
+.opt:hover{border-color:var(--acc)}
+.opt.sel{border-color:var(--acc);background:rgba(124,58,237,.25)}
+.opt .l{width:22px;height:22px;border-radius:6px;background:var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.opt.sel .l{background:var(--acc)}
+.inp{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;color:var(--txt);font-size:15px;font-family:inherit;outline:none;margin-bottom:9px}
+.inp:focus{border-color:var(--acc)}
+.inp::placeholder{color:#4a4a5a}
+.link{display:flex;gap:8px;margin:14px 0}
+.link input{flex:1;background:#0a0a0f;border:1px solid var(--line);border-radius:11px;padding:13px 14px;color:var(--txt);font-size:12px;font-family:ui-monospace,monospace;outline:none}
+.link button{padding:0 16px;background:var(--acc);color:#fff;border:none;border-radius:11px;font-weight:700;font-family:inherit;cursor:pointer;font-size:13px}
+.share{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:14px 0}
+.share button{padding:14px 6px;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--txt);font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px}
+.share button:hover{border-color:var(--acc)}
+.share .i{font-size:20px}
+.verd{text-align:center;padding:30px 20px;border-radius:20px;margin-bottom:18px;border:1px solid var(--line);background:var(--card)}
+.verd .eb{font-size:54px;margin-bottom:12px;display:block}
+.verd h2{font-size:24px;font-weight:900;letter-spacing:-.6px;margin-bottom:8px}
+.verd p{color:var(--muted);font-size:14px;line-height:1.55}
+.verd .sb{font-size:52px;font-weight:900;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:10px 0 6px;line-height:1}
+.rank{display:flex;flex-direction:column;gap:8px}
+.rank-item{display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+.rank-item.top1{border-color:var(--gold);background:linear-gradient(135deg,rgba(245,158,11,.1),transparent)}
+.rank-item .pos{width:30px;height:30px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+.rank-item.top1 .pos{background:var(--gold);color:#000}
+.rank-item.top2 .pos{background:#94a3b8;color:#000}
+.rank-item.top3 .pos{background:#b45309;color:#fff}
+.rank-item .info{flex:1;min-width:0}
+.rank-item .nm{font-weight:700;font-size:14.5px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-item .sub{font-size:12px;color:var(--muted)}
+.rank-item .sc{font-size:18px;font-weight:900;color:var(--acc2)}
+.rank-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;line-height:1.6}
+footer{margin-top:auto;padding-top:28px;text-align:center;font-size:11.5px;color:#3a3a4a}
+footer span{color:var(--acc)}
+.mt3{margin-top:12px}
+@media(max-width:480px){.hero h1{font-size:31px}.qt{font-size:18.5px}.verd .sb{font-size:44px}}
 </style>
 </head>
 <body>
 
-<div class="container">
+<div class="c">
+  <div class="logo"><div class="m">🧩</div><div>lookmy<span class="lite">characteristic</span></div></div>
 
-  <!-- Logo -->
-  <div class="logo">
-    <div class="mark">🧩</div>
-    <div class="name">lookmy<span class="lite">characteristic</span></div>
-  </div>
-
-  <!-- ═══ SCREEN: HOME ═══ -->
-  <div class="screen active" id="screen-home">
+  <div class="s on" id="s-home">
     <div class="hero">
-      <h1>Seberapa kenal <span class="grad">kamu sama aku?</span></h1>
+      <h1>Seberapa kenal <span class="g">kamu sama aku?</span></h1>
       <p>Bikin teka-teki tentang dirimu. Share ke teman. Lihat siapa yang paling ngerti kamu.</p>
     </div>
-
-    <div class="card">
-      <h3>🎯 Cara main</h3>
-      <div class="steps">
-        <div class="step">
-          <div class="num">1</div>
-          <div class="txt"><strong>Bikin puzzle.</strong><br/>Pilih atau tulis sendiri pertanyaan tentang dirimu.</div>
-        </div>
-        <div class="step">
-          <div class="num">2</div>
-          <div class="txt"><strong>Share link.</strong><br/>Kirim ke teman lewat WhatsApp, IG, atau copy link.</div>
-        </div>
-        <div class="step">
-          <div class="num">3</div>
-          <div class="txt"><strong>Lihat hasilnya.</strong><br/>Teman jawab, dapat skor berapa % mereka kenal kamu.</div>
-        </div>
-      </div>
-    </div>
-
-    <button class="btn" onclick="showScreen('screen-mode')">Bikin Puzzle →</button>
-    <button class="btn btn-secondary" onclick="loadPuzzleFromUrl()">Masukin Link Puzzle</button>
-
+    <button class="btn" onclick="startBuilder()">Bikin Puzzle →</button>
+    <button class="btn btn2" onclick="loadFromUrl()">Masukin Link Puzzle</button>
     <footer>LOOKMYCHARACTERISTIC // <span>NOVEL PROTOTYPE</span></footer>
   </div>
 
-  <!-- ═══ SCREEN: MODE (pilih: dari bank / custom) ═══ -->
-  <div class="screen" id="screen-mode">
-    <div class="hero" style="text-align:left; margin-bottom:20px;">
-      <h1 style="font-size:26px;">Mau gimana?</h1>
-      <p style="margin:0;">Pilih dari pertanyaan siap pakai, atau tulis sendiri.</p>
-    </div>
-
-    <button class="btn" onclick="startBankMode()">
-      📚 Pilih dari Bank Pertanyaan
-      <span style="opacity:0.7; font-weight:500; font-size:12px; margin-left:6px;">(15 pertanyaan siap pakai)</span>
-    </button>
-
-    <button class="btn btn-secondary" onclick="startCustomMode()">
-      ✍️ Tulis Pertanyaan Sendiri
-    </button>
-
-    <button class="btn btn-ghost" onclick="showScreen('screen-home')">← Kembali</button>
+  <div class="s" id="s-build">
+    <div class="bar"><div id="bar"></div></div>
+    <div class="cnt" id="cnt">SOAL 1 / 8</div>
+    <div class="qt" id="qt"></div>
+    <div class="qh">Pilih jawaban yang paling benar tentang kamu</div>
+    <div class="opts" id="opts"></div>
+    <button class="btng" onclick="go('s-home')">← Kembali</button>
   </div>
 
-  <!-- ═══ SCREEN: PICKER (pilih dari bank) ═══ -->
-  <div class="screen" id="screen-picker">
-    <div class="hero" style="text-align:left; margin-bottom:16px;">
-      <h1 style="font-size:24px;">Pilih pertanyaan</h1>
-      <p style="margin:0;">Pilih 10 pertanyaan yang paling ngena buat kamu.</p>
-    </div>
-
-    <div class="picker-list" id="pickerList"></div>
-
-    <div class="picker-footer">
-      <span>Dipilih: <span class="picker-count" id="pickerCount">0</span> / 10</span>
-      <span style="font-size:12px;">Minimal 5 pertanyaan</span>
-    </div>
-
-    <button class="btn" id="pickerBtn" onclick="confirmPicker()" disabled>Lanjut Jawab →</button>
-    <button class="btn btn-ghost" onclick="showScreen('screen-mode')">← Kembali</button>
-  </div>
-
-  <!-- ═══ SCREEN: CUSTOM BUILDER ═══ -->
-  <div class="screen" id="screen-custom">
-    <div class="hero" style="text-align:left; margin-bottom:16px;">
-      <h1 style="font-size:24px;">Bikin pertanyaan sendiri</h1>
-      <p style="margin:0;">Tulis pertanyaan + 2-4 pilihan jawaban. Minimal 5 pertanyaan.</p>
-    </div>
-
-    <div id="customQuestions"></div>
-
-    <button class="btn btn-secondary" onclick="addCustomQuestion()">+ Tambah Pertanyaan</button>
-
-    <div class="picker-footer">
-      <span>Total: <span class="picker-count" id="customCount">0</span> pertanyaan</span>
-    </div>
-
-    <button class="btn" id="customBtn" onclick="confirmCustom()" disabled>Lanjut Jawab →</button>
-    <button class="btn btn-ghost" onclick="showScreen('screen-mode')">← Kembali</button>
-  </div>
-
-  <!-- ═══ SCREEN: BUILDER (jawab sendiri) ═══ -->
-  <div class="screen" id="screen-builder">
-    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="q-counter" id="qCounter">QUESTION 1</div>
-    <div class="q-text" id="qText"></div>
-    <div class="q-hint" id="qHint">Pilih jawaban yang paling benar tentang kamu</div>
-    <div class="options" id="options"></div>
-    <button class="btn btn-ghost" onclick="showScreen('screen-home')">← Kembali</button>
-  </div>
-
-  <!-- ═══ SCREEN: NAME INPUT ═══ -->
-  <div class="screen" id="screen-name">
-    <div class="verdict">
-      <span class="emoji-big">✨</span>
+  <div class="s" id="s-name">
+    <div class="verd">
+      <span class="eb">✨</span>
       <h2>Puzzle kamu udah jadi!</h2>
       <p>Tinggal kasih nama biar teman tau ini puzzle siapa.</p>
     </div>
-    <input type="text" class="name-input" id="creatorName" placeholder="Nama kamu..." maxlength="20" />
-    <button class="btn" onclick="generateLink()">Bikin Link →</button>
-    <button class="btn btn-ghost" onclick="showScreen('screen-home')">← Kembali</button>
+    <input type="text" class="inp" id="creatorName" placeholder="Nama kamu (max 15)..." maxlength="15">
+    <button class="btn" onclick="genLink()">Bikin Link →</button>
+    <button class="btng" onclick="go('s-home')">← Kembali</button>
   </div>
 
-  <!-- ═══ SCREEN: SHARE ═══ -->
-  <div class="screen" id="screen-share">
-    <div class="verdict">
-      <span class="emoji-big">🔗</span>
+  <div class="s" id="s-share">
+    <div class="verd">
+      <span class="eb">🔗</span>
       <h2>Link kamu siap!</h2>
       <p>Share ke teman dan lihat siapa yang paling kenal kamu.</p>
     </div>
-
-    <div class="link-box">
-      <input type="text" id="shareLink" readonly />
+    <div class="link">
+      <input type="text" id="shareLink" readonly>
       <button onclick="copyLink()">Copy</button>
     </div>
-
-    <div class="share-row">
-      <button class="share-btn" onclick="shareTo('whatsapp')">
-        <span class="icon">💬</span> WhatsApp
-      </button>
-      <button class="share-btn" onclick="shareTo('telegram')">
-        <span class="icon">✈️</span> Telegram
-      </button>
-      <button class="share-btn" onclick="shareTo('twitter')">
-        <span class="icon">𝕏</span> Twitter
-      </button>
+    <div class="share">
+      <button onclick="shareTo('wa')"><span class="i">💬</span>WhatsApp</button>
+      <button onclick="shareTo('tg')"><span class="i">✈️</span>Telegram</button>
+      <button onclick="shareTo('tw')"><span class="i">𝕏</span>Twitter</button>
     </div>
-
-    <button class="btn btn-secondary" onclick="previewAsFriend()">
-      👀 Preview (lihat kayak teman)
-    </button>
-    <button class="btn btn-ghost" onclick="showScreen('screen-home')">← Home</button>
+    <button class="btn" onclick="viewRanking()">🏆 Cek Ranking</button>
+    <button class="btng" onclick="go('s-home')">← Home</button>
   </div>
 
-  <!-- ═══ SCREEN: PLAYER ═══ -->
-  <div class="screen" id="screen-player">
-    <div class="progress-bar"><div class="progress-fill" id="playerProgressFill"></div></div>
-    <div class="q-counter" id="playerCounter">QUESTION 1</div>
-    <div class="q-text" id="playerQText"></div>
-    <div class="q-hint" id="playerHint"></div>
-    <div class="options" id="playerOptions"></div>
+  <div class="s" id="s-pname">
+    <div class="verd">
+      <span class="eb">👋</span>
+      <h2 id="pnameTitle">Halo!</h2>
+      <p>Sebelum mulai, siapa nama kamu?</p>
+    </div>
+    <input type="text" class="inp" id="playerName" placeholder="Nama kamu (max 15)..." maxlength="15">
+    <button class="btn" onclick="startPlay()">Mulai Jawab →</button>
   </div>
 
-  <!-- ═══ SCREEN: RESULT ═══ -->
-  <div class="screen" id="screen-result">
-    <div class="verdict" id="resultVerdict"></div>
-    <div id="reviewList"></div>
+  <div class="s" id="s-play">
+    <div class="bar"><div id="pbar"></div></div>
+    <div class="cnt" id="pcnt">SOAL 1 / 8</div>
+    <div class="qt" id="pqt"></div>
+    <div class="qh" id="pqh"></div>
+    <div class="opts" id="popts"></div>
+  </div>
 
-    <button class="btn btn-viral mt-3" onclick="createOwn()">
-      <span class="viral-icon">✨</span>
-      <span>Buat Kuis Mu Sendiri!</span>
-    </button>
-
-    <button class="btn btn-secondary" onclick="tryAgain()">🔄 Coba Lagi</button>
-
+  <div class="s" id="s-result">
+    <div class="verd" id="resultVerd"></div>
+    <button class="btn" onclick="viewRanking()">🏆 Cek Ranking</button>
+    <button class="btn btn2" onclick="go('s-home')">Bikin Puzzle Sendiri</button>
     <footer>LOOKMYCHARACTERISTIC // <span>NOVEL PROTOTYPE</span></footer>
   </div>
 
+  <div class="s" id="s-rank">
+    <div class="hero">
+      <h1 style="font-size:26px;">🏆 Ranking <span class="g" id="rankOwner">Kamu</span></h1>
+      <p id="rankSub">Siapa yang paling kenal kamu?</p>
+    </div>
+    <div class="rank" id="rankList"></div>
+    <button class="btng" onclick="go('s-home')">← Home</button>
+  </div>
 </div>
 
 <script>
-/* ═══════════════════════════════════════════
-   QUESTION BANK — 15 pertanyaan siap pakai
-   ═══════════════════════════════════════════ */
-const QUESTION_BANK = [
-  { q: "Di sekolah, aku biasa duduk di...", opts: ["Depan", "Belakang", "Tengah", "Pindah-pindah"] },
-  { q: "Aku paling sering ngapain pas jam kosong?", opts: ["Tidur", "Main HP", "Ngobrol", "Jajan ke kantin"] },
-  { q: "Warna tas/sepatu aku?", opts: ["Hitam", "Putih", "Warna terang", "Ganti-ganti"] },
-  { q: "Aku orangnya...", opts: ["Pendiam", "Cerewet", "Kalem tapi absurd", "Tergantung mood"] },
-  { q: "Aku paling gak bisa kalau disuruh...", opts: ["Bangun pagi", "Public speaking", "Nunggu lama", "Senyum ke orang"] },
-  { q: "Aku paling sering bawa apa ke sekolah?", opts: ["Botol minum", "Headset", "Buku catatan", "Cuma HP & dompet"] },
-  { q: "Kalau jam istirahat, aku paling sering...", opts: ["Di kantin", "Di kelas", "Di perpus", "Ngilang entah ke mana"] },
-  { q: "Aku paling bete kalau...", opts: ["Hujan", "Pelajaran matematika", "Dikelompokin random", "Ditanya 'kenapa diem?'"] },
-  { q: "Kalau aku udah diem, itu artinya...", opts: ["Lagi bete", "Lagi mikir", "Lagi capek", "Lagi ngantuk"] },
-  { q: "Satu hal yang orang sering salah paham tentang aku?", opts: ["Aku sombong (padahal malu)", "Aku gak peduli (padahal peka)", "Aku pendiem (padahal cerewet)", "Aku santai (padahal overthinking)"] },
-  { q: "Aku paling sering dengerin musik genre apa?", opts: ["Pop", "Rap/Hip-hop", "Rock/Metal", "Gak dengerin musik"] },
-  { q: "Kalau aku lagi sendirian, biasanya aku...", opts: ["Scroll HP", "Tidur", "Nulis/mikir", "Dengerin musik"] },
-  { q: "Aku tipe orang yang...", opts: ["On time", "Sering telat", "Datang paling awal", "Tergantung siapa yang ngajak"] },
-  { q: "Kalau ada masalah, aku biasanya...", opts: ["Diem aja", "Cerita ke temen", "Nangis dulu", "Pura-pura gak ada masalah"] },
-  { q: "Hal yang bikin aku respect sama orang?", opts: ["Jujur", "Pinter", "Humoris", "Bisa diem"] }
+/* ═══ BANK SOAL ═══ */
+const BANK = [
+  {q:"Di sekolah, aku biasa duduk di...",o:["Depan","Belakang","Tengah","Pindah-pindah"]},
+  {q:"Pas jam kosong, aku paling sering...",o:["Tidur","Main HP","Ngobrol","Ke kantin"]},
+  {q:"Aku orangnya...",o:["Pendiam","Cerewet","Kalem tapi absurd","Tergantung mood"]},
+  {q:"Aku paling gak bisa kalau disuruh...",o:["Bangun pagi","Public speaking","Nunggu lama","Senyum ke orang"]},
+  {q:"Kalau aku udah diem, artinya...",o:["Lagi bete","Lagi mikir","Lagi capek","Lagi ngantuk"]},
+  {q:"Satu hal yang orang sering salah paham tentang aku?",o:["Sombong (padahal malu)","Gak peduli (padahal peka)","Pendiem (padahal cerewet)","Santai (padahal overthinking)"]},
+  {q:"Kalau ada masalah, aku...",o:["Diem aja","Cerita ke temen","Nangis dulu","Pura-pura gak ada"]},
+  {q:"Aku paling respect sama orang yang...",o:["Jujur","Pinter","Humoris","Bisa diem"]}
 ];
 
-/* ═══════════════════════════════════════════
-   STATE
-   ═══════════════════════════════════════════ */
-let selectedQuestions = [];   // daftar pertanyaan yang dipilih user (bank mode)
-let customQuestions = [];     // daftar pertanyaan custom
-let activeQuestions = [];     // yang lagi dipake (bank atau custom)
-let builderState = { current: 0, answers: [] };
-let currentPuzzle = null;
-let playerState = { current: 0, answers: [] };
+/* ═══ STATE ═══ */
+let b={i:0,a:[]}, puzzle=null, p={i:0,a:[],name:""}, playerName="";
 
-const MIN_QUESTIONS = 5;
-const MAX_QUESTIONS = 10;
-
-/* ═══════════════════════════════════════════
-   NAVIGATION
-   ═══════════════════════════════════════════ */
-function showScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  window.scrollTo({ top: 0, behavior: "smooth" });
+/* ═══ NAV ═══ */
+function go(id){
+  document.querySelectorAll(".s").forEach(x=>x.classList.remove("on"));
+  document.getElementById(id).classList.add("on");
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 
-/* ═══════════════════════════════════════════
-   MODE: BANK
-   ═══════════════════════════════════════════ */
-function startBankMode() {
-  selectedQuestions = [];
-  renderPicker();
-  showScreen("screen-picker");
-}
-
-function renderPicker() {
-  const list = document.getElementById("pickerList");
-  list.innerHTML = "";
-  QUESTION_BANK.forEach((q, idx) => {
-    const isChecked = selectedQuestions.includes(idx);
-    const el = document.createElement("div");
-    el.className = "picker-item" + (isChecked ? " checked" : "");
-    el.innerHTML = `
-      <div class="check">${isChecked ? "✓" : ""}</div>
-      <div class="q-text-sm">${q.q}</div>
-    `;
-    el.onclick = () => togglePick(idx);
-    list.appendChild(el);
+/* ═══ BUILDER ═══ */
+function startBuilder(){ b={i:0,a:[]}; go("s-build"); renderB(); }
+function renderB(){
+  const q=BANK[b.i];
+  document.getElementById("bar").style.width=(b.i/BANK.length*100)+"%";
+  document.getElementById("cnt").textContent=`SOAL ${b.i+1} / ${BANK.length}`;
+  document.getElementById("qt").textContent=q.q;
+  const el=document.getElementById("opts"); el.innerHTML="";
+  q.o.forEach((opt,idx)=>{
+    const btn=document.createElement("button");
+    btn.className="opt";
+    btn.innerHTML=`<span class="l">${"ABCD"[idx]}</span><span>${opt}</span>`;
+    btn.onclick=()=>pickB(idx,btn);
+    el.appendChild(btn);
   });
-  updatePickerUI();
+}
+function pickB(idx,btn){
+  document.querySelectorAll("#opts .opt").forEach(x=>x.classList.remove("sel"));
+  btn.classList.add("sel");
+  b.a[b.i]=idx;
+  setTimeout(()=>{
+    if(b.i+1<BANK.length){b.i++;renderB();}
+    else{document.getElementById("bar").style.width="100%";setTimeout(()=>go("s-name"),350);}
+  },300);
 }
 
-function togglePick(idx) {
-  const i = selectedQuestions.indexOf(idx);
-  if (i >= 0) {
-    selectedQuestions.splice(i, 1);
-  } else {
-    if (selectedQuestions.length >= MAX_QUESTIONS) {
-      alert(`Maksimal ${MAX_QUESTIONS} pertanyaan.`);
-      return;
-    }
-    selectedQuestions.push(idx);
-  }
-  renderPicker();
+/* ═══ GEN LINK ═══ */
+function genLink(){
+  const name=document.getElementById("creatorName").value.trim()||"Someone";
+  const code=rand(8);
+  puzzle={name,questions:BANK,answers:b.a,code};
+  const packed=LZString.compressToEncodedURIComponent(JSON.stringify(puzzle));
+  const url=`${location.origin}${location.pathname}#p/${code}?d=${packed}`;
+  document.getElementById("shareLink").value=url;
+  go("s-share");
 }
+function rand(n){let s="",c="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";for(let i=0;i<n;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
 
-function updatePickerUI() {
-  const count = selectedQuestions.length;
-  document.getElementById("pickerCount").textContent = count;
-  document.getElementById("pickerBtn").disabled = count < MIN_QUESTIONS;
-}
-
-function confirmPicker() {
-  if (selectedQuestions.length < MIN_QUESTIONS) return;
-  activeQuestions = selectedQuestions
-    .sort((a, b) => a - b)
-    .map(i => QUESTION_BANK[i]);
-  builderState = { current: 0, answers: [] };
-  showScreen("screen-builder");
-  renderBuilderQuestion();
-}
-
-/* ═══════════════════════════════════════════
-   MODE: CUSTOM
-   ═══════════════════════════════════════════ */
-function startCustomMode() {
-  customQuestions = [emptyCustomQ()];
-  renderCustomBuilder();
-  showScreen("screen-custom");
-}
-
-function emptyCustomQ() {
-  return { q: "", opts: ["", "", "", ""] };
-}
-
-function renderCustomBuilder() {
-  const wrap = document.getElementById("customQuestions");
-  wrap.innerHTML = "";
-  customQuestions.forEach((cq, i) => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.style.marginBottom = "12px";
-    card.innerHTML = `
-      <div class="input-label">PERTANYAAN ${i + 1}</div>
-      <input type="text" class="custom-input" placeholder="Tulis pertanyaan..." 
-             value="${escapeHtml(cq.q)}" oninput="updateCustomQ(${i}, 'q', this.value)" />
-      <div class="input-label" style="margin-top:8px;">PILIHAN JAWABAN</div>
-      ${cq.opts.map((o, j) => `
-        <input type="text" class="custom-input" placeholder="Pilihan ${j + 1}" 
-               value="${escapeHtml(o)}" oninput="updateCustomOpt(${i}, ${j}, this.value)" />
-      `).join("")}
-      ${customQuestions.length > 1 ? `
-        <button class="btn btn-ghost" style="font-size:12px;" onclick="removeCustomQ(${i})">🗑 Hapus</button>
-      ` : ""}
-    `;
-    wrap.appendChild(card);
+/* ═══ COPY + SHARE ═══ */
+function copyLink(){
+  const i=document.getElementById("shareLink"); i.select();
+  navigator.clipboard.writeText(i.value).then(()=>{
+    const b=i.nextElementSibling,o=b.textContent;
+    b.textContent="Copied!";setTimeout(()=>b.textContent=o,1500);
   });
-  updateCustomUI();
+}
+function shareTo(p){
+  const link=document.getElementById("shareLink").value;
+  const txt="Coba tebak, seberapa kenal kamu sama aku? 🧩";
+  const u={
+    wa:`https://wa.me/?text=${encodeURIComponent(txt+" "+link)}`,
+    tg:`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(txt)}`,
+    tw:`https://twitter.com/intent/tweet?text=${encodeURIComponent(txt)}&url=${encodeURIComponent(link)}`
+  };
+  window.open(u[p],"_blank");
 }
 
-function updateCustomQ(i, field, value) {
-  customQuestions[i][field] = value;
-}
-
-function updateCustomOpt(i, j, value) {
-  customQuestions[i].opts[j] = value;
-}
-
-function addCustomQuestion() {
-  if (customQuestions.length >= MAX_QUESTIONS) {
-    alert(`Maksimal ${MAX_QUESTIONS} pertanyaan.`);
+/* ═══ LOAD FROM URL ═══ */
+function loadFromUrl(){
+  const h=location.hash;
+  const m=h.match(/#p\/([A-Za-z0-9]+)\?d=(.+)/);
+  if(!m){
+    const link=prompt("Tempel link puzzle:");
+    if(!link)return;
+    const mm=link.match(/#p\/([A-Za-z0-9]+)\?d=(.+)/);
+    if(!mm)return alert("Link gak valid.");
+    parsePlay(mm[1],mm[2]);
     return;
   }
-  customQuestions.push(emptyCustomQ());
-  renderCustomBuilder();
+  parsePlay(m[1],m[2]);
 }
-
-function removeCustomQ(i) {
-  customQuestions.splice(i, 1);
-  renderCustomBuilder();
+function parsePlay(code,packed){
+  try{
+    const json=LZString.decompressFromEncodedURIComponent(packed);
+    if(!json)throw 0;
+    puzzle=JSON.parse(json);
+    puzzle.code=code;
+    document.getElementById("pnameTitle").textContent=`Halo! Ini puzzle ${puzzle.name}`;
+    go("s-pname");
+  }catch(e){alert("Puzzle rusak. Minta link baru.");}
 }
-
-function updateCustomUI() {
-  // Hitung yang valid: pertanyaan ada isi + minimal 2 pilihan ada isi
-  const valid = customQuestions.filter(cq =>
-    cq.q.trim() &&
-    cq.opts.filter(o => o.trim()).length >= 2
-  );
-  document.getElementById("customCount").textContent = customQuestions.length;
-  document.getElementById("customBtn").disabled = valid.length < MIN_QUESTIONS;
-}
-
-function confirmCustom() {
-  // Filter + normalize
-  const cleaned = customQuestions
-    .filter(cq => cq.q.trim() && cq.opts.filter(o => o.trim()).length >= 2)
-    .map(cq => ({
-      q: cq.q.trim(),
-      opts: cq.opts.filter(o => o.trim()).map(o => o.trim())
-    }));
-
-  if (cleaned.length < MIN_QUESTIONS) {
-    alert(`Minimal ${MIN_QUESTIONS} pertanyaan valid.`);
-    return;
-  }
-
-  activeQuestions = cleaned;
-  builderState = { current: 0, answers: [] };
-  showScreen("screen-builder");
-  renderBuilderQuestion();
-}
-
-// Re-render on input
-document.addEventListener("input", (e) => {
-  if (e.target.closest("#screen-custom")) {
-    updateCustomUI();
+window.addEventListener("load",()=>{
+  if(location.hash.startsWith("#p/") && location.hash.includes("?d=")){
+    setTimeout(loadFromUrl,300);
   }
 });
 
-/* ═══════════════════════════════════════════
-   BUILDER — user jawab sendiri
-   ═══════════════════════════════════════════ */
-function renderBuilderQuestion() {
-  const i = builderState.current;
-  const q = activeQuestions[i];
-  document.getElementById("progressFill").style.width = (i / activeQuestions.length * 100) + "%";
-  document.getElementById("qCounter").textContent = `QUESTION ${i + 1} / ${activeQuestions.length}`;
-  document.getElementById("qText").textContent = q.q;
-
-  const letters = ["A", "B", "C", "D", "E", "F"];
-  const optsEl = document.getElementById("options");
-  optsEl.innerHTML = "";
-  q.opts.forEach((opt, idx) => {
-    const btn = document.createElement("button");
-    btn.className = "option";
-    btn.innerHTML = `<span class="letter">${letters[idx] || "?"}</span><span>${escapeHtml(opt)}</span>`;
-    btn.onclick = () => selectBuilderAnswer(idx);
-    optsEl.appendChild(btn);
+/* ═══ PLAYER ═══ */
+function startPlay(){
+  const n=document.getElementById("playerName").value.trim();
+  if(!n)return alert("Isi nama dulu ya.");
+  playerName=n.substring(0,15);
+  p={i:0,a:[]};
+  document.getElementById("pqh").textContent=`Tebak jawaban ${puzzle.name}`;
+  go("s-play");
+  renderP();
+}
+function renderP(){
+  const q=puzzle.questions[p.i];
+  document.getElementById("pbar").style.width=(p.i/puzzle.questions.length*100)+"%";
+  document.getElementById("pcnt").textContent=`SOAL ${p.i+1} / ${puzzle.questions.length}`;
+  document.getElementById("pqt").textContent=q.q;
+  const el=document.getElementById("popts"); el.innerHTML="";
+  q.o.forEach((opt,idx)=>{
+    const btn=document.createElement("button");
+    btn.className="opt";
+    btn.innerHTML=`<span class="l">${"ABCD"[idx]}</span><span>${opt}</span>`;
+    btn.onclick=()=>pickP(idx,btn);
+    el.appendChild(btn);
   });
 }
-
-function selectBuilderAnswer(idx) {
-  document.querySelectorAll("#options .option").forEach((el, k) => {
-    el.classList.toggle("selected", k === idx);
-  });
-  builderState.answers[builderState.current] = idx;
-
-  setTimeout(() => {
-    if (builderState.current + 1 < activeQuestions.length) {
-      builderState.current++;
-      renderBuilderQuestion();
-    } else {
-      document.getElementById("progressFill").style.width = "100%";
-      setTimeout(() => showScreen("screen-name"), 350);
-    }
-  }, 300);
+function pickP(idx,btn){
+  document.querySelectorAll("#popts .opt").forEach(x=>x.classList.remove("sel"));
+  btn.classList.add("sel");
+  p.a[p.i]=idx;
+  setTimeout(()=>{
+    if(p.i+1<puzzle.questions.length){p.i++;renderP();}
+    else{document.getElementById("pbar").style.width="100%";setTimeout(showResult,350);}
+  },300);
 }
 
-/* ═══════════════════════════════════════════
-   GENERATE LINK
-   ═══════════════════════════════════════════ */
-function generateLink() {
-  const name = document.getElementById("creatorName").value.trim() || "Someone";
-  const code = randomCode(12);
-  const puzzle = {
-    name,
-    questions: activeQuestions,
-    answers: builderState.answers
-  };
-  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(puzzle))));
-  const url = `${location.origin}${location.pathname}#puzzle/${code}?d=${encoded}`;
-  document.getElementById("shareLink").value = url;
-  currentPuzzle = { ...puzzle, code };
-  showScreen("screen-share");
-}
-
-function randomCode(len) {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let s = "";
-  for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * chars.length)];
-  return s;
-}
-
-/* ═══════════════════════════════════════════
-   SHARE + COPY
-   ═══════════════════════════════════════════ */
-function copyLink() {
-  const input = document.getElementById("shareLink");
-  input.select();
-  navigator.clipboard.writeText(input.value).then(() => {
-    const btn = input.nextElementSibling;
-    const orig = btn.textContent;
-    btn.textContent = "Copied!";
-    setTimeout(() => btn.textContent = orig, 1500);
-  });
-}
-
-function shareTo(platform) {
-  const link = document.getElementById("shareLink").value;
-  const text = "Coba tebak, seberapa kenal kamu sama aku? 🧩";
-  const urls = {
-    whatsapp: `https://wa.me/?text=${encodeURIComponent(text + " " + link)}`,
-    telegram: `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`,
-    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(link)}`
-  };
-  window.open(urls[platform], "_blank");
-}
-
-/* ═══════════════════════════════════════════
-   LOAD PUZZLE FROM URL
-   ═══════════════════════════════════════════ */
-function loadPuzzleFromUrl() {
-  const hash = location.hash;
-  const match = hash.match(/#puzzle\/([^?]+)\?d=(.+)/);
-  if (!match) {
-    const link = prompt("Tempel link puzzle di sini:");
-    if (!link) return;
-    try {
-      const url = new URL(link);
-      const m = url.hash.match(/#puzzle\/([^?]+)\?d=(.+)/);
-      if (!m) throw new Error("Link gak valid");
-      const puzzle = JSON.parse(decodeURIComponent(escape(atob(m[2]))));
-      startPlayer(puzzle);
-    } catch (e) {
-      alert("Link puzzle gak valid. Coba lagi.");
-    }
-    return;
-  }
-  try {
-    const puzzle = JSON.parse(decodeURIComponent(escape(atob(match[2]))));
-    startPlayer(puzzle);
-  } catch (e) {
-    alert("Puzzle rusak. Minta link baru.");
-  }
-}
-
-window.addEventListener("load", () => {
-  if (location.hash.startsWith("#puzzle/")) {
-    setTimeout(loadPuzzleFromUrl, 100);
-  }
-});
-
-/* ═══════════════════════════════════════════
-   PLAYER
-   ═══════════════════════════════════════════ */
-function startPlayer(puzzle) {
-  currentPuzzle = puzzle;
-  playerState = { current: 0, answers: [] };
-  document.getElementById("playerHint").textContent = `Tebak jawaban ${puzzle.name}`;
-  showScreen("screen-player");
-  renderPlayerQuestion();
-}
-
-function previewAsFriend() {
-  if (!currentPuzzle) return;
-  startPlayer(currentPuzzle);
-}
-
-function renderPlayerQuestion() {
-  const i = playerState.current;
-  const q = currentPuzzle.questions[i];
-  document.getElementById("playerProgressFill").style.width = (i / currentPuzzle.questions.length * 100) + "%";
-  document.getElementById("playerCounter").textContent = `QUESTION ${i + 1} / ${currentPuzzle.questions.length}`;
-  document.getElementById("playerQText").textContent = q.q;
-
-  const letters = ["A", "B", "C", "D", "E", "F"];
-  const optsEl = document.getElementById("playerOptions");
-  optsEl.innerHTML = "";
-  q.opts.forEach((opt, idx) => {
-    const btn = document.createElement("button");
-    btn.className = "option";
-    btn.innerHTML = `<span class="letter">${letters[idx] || "?"}</span><span>${escapeHtml(opt)}</span>`;
-    btn.onclick = () => selectPlayerAnswer(idx);
-    optsEl.appendChild(btn);
-  });
-}
-
-function selectPlayerAnswer(idx) {
-  document.querySelectorAll("#playerOptions .option").forEach((el, k) => {
-    el.classList.toggle("selected", k === idx);
-  });
-  playerState.answers[playerState.current] = idx;
-
-  setTimeout(() => {
-    if (playerState.current + 1 < currentPuzzle.questions.length) {
-      playerState.current++;
-      renderPlayerQuestion();
-    } else {
-      document.getElementById("playerProgressFill").style.width = "100%";
-      setTimeout(showResult, 350);
-    }
-  }, 300);
-}
-
-/* ═══════════════════════════════════════════
-   RESULT
-   ═══════════════════════════════════════════ */
-function showResult() {
-  const correct = currentPuzzle.answers;
-  const player = playerState.answers;
-  const total = currentPuzzle.questions.length;
-  let score = 0;
-  player.forEach((ans, i) => { if (ans === correct[i]) score++; });
-  const pct = Math.round((score / total) * 100);
-
-  let emoji, title, desc;
-  if (pct === 100) { emoji = "👑"; title = "Perfect!"; desc = `${currentPuzzle.name} bakal kaget. Kamu bener-bener kenal dia.`; }
-  else if (pct >= 80) { emoji = "🔥"; title = "Kenal banget!"; desc = "Kamu salah satu orang yang paling ngerti dia."; }
-  else if (pct >= 60) { emoji = "😎"; title = "Lumayan kenal"; desc = "Kamu cukup ngerti dia, tapi masih ada yang belum."; }
-  else if (pct >= 40) { emoji = "🤔"; title = "Setengah kenal"; desc = "Kamu kenal dia, tapi belum dalam."; }
-  else if (pct >= 20) { emoji = "😬"; title = "Kurang kenal"; desc = "Kamu perlu ngobrol lebih banyak sama dia."; }
-  else { emoji = "💀"; title = "Nggak kenal"; desc = "Kamu yakin ini temen kamu?"; }
-
-  document.getElementById("resultVerdict").innerHTML = `
-    <span class="emoji-big">${emoji}</span>
-    <div class="score-big">${pct}%</div>
-    <h2>${title}</h2>
-    <p>Kamu jawab ${score} dari ${total} benar.<br/>${desc}</p>
+/* ═══ RESULT + AUTO KIRIM ═══ */
+function showResult(){
+  let sc=0;
+  p.a.forEach((a,i)=>{if(a===puzzle.answers[i])sc++;});
+  const total=puzzle.questions.length;
+  const pct=Math.round(sc/total*100);
+  let e,t,d;
+  if(pct===100){e="👑";t="Perfect!";d=`${puzzle.name} bakal kaget.`;}
+  else if(pct>=80){e="🔥";t="Kenal banget!";d="Kamu salah satu yang paling ngerti dia.";}
+  else if(pct>=60){e="😎";t="Lumayan kenal";d="Cukup ngerti, tapi masih ada yang belum.";}
+  else if(pct>=40){e="🤔";t="Setengah kenal";d="Kenal, tapi belum dalam.";}
+  else if(pct>=20){e="😬";t="Kurang kenal";d="Perlu ngobrol lebih banyak.";}
+  else{e="💀";t="Nggak kenal";d="Yakin ini temen kamu?";}
+  document.getElementById("resultVerdict").innerHTML=`
+    <span class="eb">${e}</span>
+    <div class="sb">${pct}%</div>
+    <h2>${t}</h2>
+    <p>${playerName}, kamu jawab ${sc} dari ${total} benar.<br/>${d}</p>
   `;
 
-  const reviewEl = document.getElementById("reviewList");
-  reviewEl.innerHTML = "";
-  currentPuzzle.questions.forEach((q, i) => {
-    const isCorrect = player[i] === correct[i];
-    const item = document.createElement("div");
-    item.className = "review-item " + (isCorrect ? "correct" : "wrong");
-    item.innerHTML = `
-      <div class="mark">${isCorrect ? "✓" : "✕"}</div>
-      <div class="body">
-        <div class="q">${escapeHtml(q.q)}</div>
-        <div class="a">Jawaban benar: <strong>${escapeHtml(q.opts[correct[i]])}</strong></div>
-      </div>
-    `;
-    reviewEl.appendChild(item);
-  });
-
-  showScreen("screen-result");
+  // Auto-kirim ke Vercel KV
+  saveScore(puzzle.code, playerName, sc, total);
+  go("s-result");
 }
 
-function tryAgain() {
-  if (!currentPuzzle) return;
-  playerState = { current: 0, answers: [] };
-  showScreen("screen-player");
-  renderPlayerQuestion();
+async function saveScore(code, name, skor, total){
+  try {
+    await fetch("/api/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, nama: name, skor, total })
+    });
+  } catch(e) {
+    console.log("Gagal kirim skor:", e);
+  }
 }
 
-function createOwn() {
-  location.hash = "";
-  currentPuzzle = null;
-  activeQuestions = [];
-  showScreen("screen-home");
+/* ═══ RANKING ═══ */
+async function viewRanking(){
+  if(!puzzle)return;
+  document.getElementById("rankOwner").textContent=puzzle.name;
+  document.getElementById("rankSub").textContent=`Siapa yang paling kenal ${puzzle.name}?`;
+  const list=document.getElementById("rankList");
+  list.innerHTML=`<div class="rank-empty">Memuat ranking...</div>`;
+  go("s-rank");
+
+  try {
+    const res = await fetch(`/api/rank?code=${puzzle.code}`);
+    const data = await res.json();
+
+    if(!data.length){
+      list.innerHTML=`<div class="rank-empty">Belum ada yang main.<br/>Share link ke teman dulu! 🔗</div>`;
+      return;
+    }
+
+    list.innerHTML="";
+    data.forEach((d,i)=>{
+      const pct=Math.round((d.skor/d.total)*100);
+      const el=document.createElement("div");
+      el.className="rank-item"+(i===0?" top1":i===1?" top2":i===2?" top3":"");
+      const medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1);
+      el.innerHTML=`
+        <div class="pos">${medal}</div>
+        <div class="info">
+          <div class="nm">${esc(d.nama)}</div>
+          <div class="sub">${d.skor} / ${d.total} benar</div>
+        </div>
+        <div class="sc">${pct}%</div>
+      `;
+      list.appendChild(el);
+    });
+  } catch(e) {
+    list.innerHTML=`<div class="rank-empty">Gagal memuat ranking 😅<br/>Coba lagi nanti.</div>`;
+  }
 }
 
-/* ═══════════════════════════════════════════
-   UTIL
-   ═══════════════════════════════════════════ */
-function escapeHtml(s) {
-  if (s === undefined || s === null) return "";
-  return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 </script>
 
 </body>
